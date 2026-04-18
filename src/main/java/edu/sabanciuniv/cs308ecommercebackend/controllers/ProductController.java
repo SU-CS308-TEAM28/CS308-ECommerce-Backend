@@ -1,9 +1,7 @@
 package edu.sabanciuniv.cs308ecommercebackend.controllers;
 
 import edu.sabanciuniv.cs308ecommercebackend.models.Product;
-import edu.sabanciuniv.cs308ecommercebackend.repositories.PagedProductRepository;
-import edu.sabanciuniv.cs308ecommercebackend.repositories.ProductRepository;
-import jakarta.websocket.server.PathParam;
+import edu.sabanciuniv.cs308ecommercebackend.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/product")
@@ -23,10 +20,7 @@ public class ProductController
 {
 
     @Autowired
-    public ProductRepository productRepository;
-
-    @Autowired
-    public PagedProductRepository pagedProductRepository;
+    private ProductService productService;
 
     @GetMapping("/products")
     public ResponseEntity<Map<String, Object>> getAllProducts(
@@ -35,7 +29,7 @@ public class ProductController
             @RequestParam(defaultValue = "ratings.value") String sort,
             @RequestParam(defaultValue = "desc") String order)
     {
-        Page<Product> p =  pagedProductRepository.findAll(PageRequest.of(page, size, order.equals("desc") ? Sort.by(sort).descending() : Sort.by(sort).ascending()));
+        Page<Product> p = productService.getPagedProducts(page, size, sort, order);
 
         return ResponseEntity.ok().body(
                 Map.of(
