@@ -37,4 +37,12 @@ public class UserService
                 .build()
         );
     }
+
+    public User getUserByEmail(String email)
+    {
+        User user = userRepository.findByEmail(email);
+        user.setPwdHash("");
+
+        return user;
+    }
 }
