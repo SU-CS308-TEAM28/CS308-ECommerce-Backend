@@ -1,7 +1,6 @@
 package edu.sabanciuniv.cs308ecommercebackend;
 
-import com.mongodb.MongoClientSettings;
-import com.mongodb.ServerAddress;
+import com.mongodb.*;
 import org.bson.UuidRepresentation;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
@@ -20,10 +19,15 @@ public class MongoDBConfiguration extends AbstractMongoClientConfiguration {
 
     @Override
     protected MongoClientSettings mongoClientSettings() {
+        String mongoConnectionUrl = System.getenv("MONGO_CONNECTION_URL");
+
+        ServerApi serverApi = ServerApi.builder()
+                .version(ServerApiVersion.V1)
+                .build();
+
         return MongoClientSettings.builder()
-                .applyToClusterSettings(settings  -> {
-                    settings.hosts(singletonList(new ServerAddress("localhost", 32768)));
-                })
+                .applyConnectionString(new ConnectionString(mongoConnectionUrl))
+                .serverApi(serverApi)
                 .build();
     }
 
