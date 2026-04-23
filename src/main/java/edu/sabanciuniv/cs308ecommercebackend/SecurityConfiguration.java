@@ -29,7 +29,12 @@ public class SecurityConfiguration
         httpSecurity
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests((authorize) -> authorize
-                    .requestMatchers("/api/test", "/api/auth/login", "/api/auth/register").permitAll()
+                    .requestMatchers(
+                            "/api/test",
+                            "/api/auth/login",
+                            "/api/auth/register",
+                            "/api/product/products"
+                    ).permitAll()
                     .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))

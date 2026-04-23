@@ -20,7 +20,7 @@ public class TestController {
         return ResponseEntity.ok(
                 Map.of(
                         "message", "Test endpoint success.",
-                        "currentProductCount", productRepository.findAll(Pageable.ofSize(50)).stream().count(),
+                        "currentProductCount", productRepository.findAll(Pageable.ofSize(50)).stream().count() ,
                         "timestamp", String.valueOf(System.currentTimeMillis())
                 )
         );
