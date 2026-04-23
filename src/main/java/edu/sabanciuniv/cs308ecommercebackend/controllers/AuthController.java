@@ -8,7 +8,6 @@ import edu.sabanciuniv.cs308ecommercebackend.services.UserService;
 import edu.sabanciuniv.cs308ecommercebackend.utils.JWTUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -45,10 +44,10 @@ public class AuthController
         }
         catch (Exception e)
         {
-            return new TeknocsResponse<AuthRegister.Response>(HttpStatus.BAD_REQUEST, "Unknown error occurred while creating account.", null);
+            return new TeknocsResponse<>(HttpStatus.BAD_REQUEST, "Unknown error occurred while creating account.", null);
         }
 
-        return new TeknocsResponse<AuthRegister.Response>(HttpStatus.OK, "User %s registered successfully.".formatted(request.getEmail()), null);
+        return new TeknocsResponse<>(HttpStatus.OK, "User %s registered successfully.".formatted(request.getEmail()), null);
     }
 
     @PostMapping("/login")
@@ -61,19 +60,21 @@ public class AuthController
         }
         catch (BadCredentialsException e)
         {
-            throw new BadCredentialsException("Invalid Username or Password!");
+            return new TeknocsResponse<>(HttpStatus.BAD_REQUEST, "Invalid email or password!", null);
         }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         String token = jwtUtil.generateToken(userDetails.getUsername());
 
-        AuthLogin.Response response = AuthLogin.Response
-                .builder()
-                .token(token)
-                .user(userService.getUserByEmail(userDetails.getUsername()))
-                .build();
-
-        return new TeknocsResponse<AuthLogin.Response>(HttpStatus.OK, "User logged in successfully.", response);
+        return new TeknocsResponse<>(
+                HttpStatus.OK,
+                "User logged in successfully.",
+                AuthLogin.Response
+                        .builder()
+                        .token(token)
+                        .user(userService.getUserByEmail(userDetails.getUsername()))
+                        .build()
+        );
     }
 
     @GetMapping("/check-auth")
@@ -82,10 +83,10 @@ public class AuthController
         AuthLogin.Response response = AuthLogin.Response
                 .builder()
                 .token(token.substring(7))
-                .user(userService.getUserByEmail(jwtUtil.extractUsername(token.substring(7))))
+                .user(userService.getUserByToken(token))
                 .build();
 
-        return new TeknocsResponse<AuthLogin.Response>(
+        return new TeknocsResponse<>(
                 HttpStatus.OK,
                 "Authentication valid, logged in as %s".formatted(response.getUser().getEmail()),
                 response

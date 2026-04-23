@@ -74,4 +74,5 @@ public class TeknocsUserDetailsService implements UserDetailsService
             return true; // TODO Check if JWT token expired and return false if did. (This isn't exactly required since the filter has a check up for this in some other way but might be good to have?)
         }
     }
+
 }

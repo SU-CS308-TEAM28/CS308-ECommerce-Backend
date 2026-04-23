@@ -1,9 +1,7 @@
 package edu.sabanciuniv.cs308ecommercebackend.models.payloads.auth;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 
 import java.util.Date;
 
@@ -20,5 +18,6 @@ public class AuthRegister
         private Date birthDate;
     }
 
+    // A request class may be omitted if not required but a response class HAS TO EXIST.
     public static class Response {}
 }

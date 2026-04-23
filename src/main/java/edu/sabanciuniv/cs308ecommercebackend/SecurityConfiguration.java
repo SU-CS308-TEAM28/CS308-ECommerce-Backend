@@ -24,7 +24,8 @@ public class SecurityConfiguration
     private JwtAuthFilter jwtAuthFilter;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception
+    {
         // TODO Adjust permissions for endpoints.
         httpSecurity
             .csrf(AbstractHttpConfigurer::disable)
