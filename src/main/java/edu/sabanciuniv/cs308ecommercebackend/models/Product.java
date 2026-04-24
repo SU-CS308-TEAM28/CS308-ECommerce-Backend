@@ -16,16 +16,22 @@ import java.util.List;
 @Document(collection = "Products")
 public class Product
 {
-    // TODO Restructure product model to conform with the DB structure updates.
     @Id
     String id;
     String name;
+    String description;
     double price;
-    String image;
+    double activeDiscount;
+    String model;
+    String serialNumber;
+    String warrantyStatus;
+    String distributorInformation;
+    String thumbnailUrl;
+    List<String> imageUrls;
     String category;
     List<String> subcategories;
-    String description;
     Ratings ratings;
+    List<ExtraProperty> extraProps;
 
     @Data
     @Builder
@@ -35,5 +41,15 @@ public class Product
     {
         Integer count;
         Double value;
+    }
+
+    @Data
+    @Builder
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class ExtraProperty
+    {
+        String label;
+        String value;
     }
 }

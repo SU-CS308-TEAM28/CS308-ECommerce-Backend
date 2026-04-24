@@ -12,8 +12,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
 @RestController
 @RequestMapping("/api/product")
 public class ProductController
@@ -27,16 +25,24 @@ public class ProductController
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "ratings.value") String sort,
-            @RequestParam(defaultValue = "desc") String order)
+            @RequestParam(defaultValue = "desc") String order,
+            @RequestParam(defaultValue = "") String category,
+            @RequestParam(defaultValue = "") String search)
     {
-        Page<Product> p = productService.getPagedProducts(page, size, sort, order);
+        Page<Product> productsPage;
+        if (!category.isBlank())
+            productsPage = productService.getPagedProducts(page, size, sort, order, ProductService.Category.valueOf(category));
+        else if (!search.isBlank())
+            productsPage = productService.getPagedProducts(page, size, sort, order, search);
+        else
+            productsPage = productService.getPagedProducts(page, size, sort, order);
 
         return new TeknocsResponse<>(
                 HttpStatus.OK,
                 "Successfully retrieved products.",
                 GetProducts.Response.builder()
-                        .pageCount(p.getTotalPages())
-                        .products(p.get())
+                        .pageCount(productsPage.getTotalPages())
+                        .products(productsPage.get())
                         .build()
         );
     }
