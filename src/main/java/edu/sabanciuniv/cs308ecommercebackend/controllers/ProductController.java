@@ -7,10 +7,9 @@ import edu.sabanciuniv.cs308ecommercebackend.services.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/product")
@@ -19,6 +18,18 @@ public class ProductController
 
     @Autowired
     private ProductService productService;
+
+    @GetMapping("/{id}")
+    public TeknocsResponse<Product> getProduct(@PathVariable String id)
+    {
+        Optional<Product> product = productService.getProduct(id);
+
+        return new TeknocsResponse<>(
+                product.isPresent() ? HttpStatus.OK : HttpStatus.BAD_REQUEST,
+                product.isPresent() ? "Successfully returned product." : "Product does not exist.",
+                product.orElse(null)
+        );
+    }
 
     @GetMapping("/products")
     public TeknocsResponse<GetProducts.Response> getAllProducts(

@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductService
@@ -31,6 +32,11 @@ public class ProductService
 
     @Autowired
     private PagedProductRepository pagedProductRepository;
+
+    public Optional<Product> getProduct(String id)
+    {
+        return productRepository.findById(id);
+    }
 
     public List<Product> getAllProducts()
     {
