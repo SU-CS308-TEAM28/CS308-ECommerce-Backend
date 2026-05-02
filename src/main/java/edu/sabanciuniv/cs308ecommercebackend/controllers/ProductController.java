@@ -38,13 +38,15 @@ public class ProductController
             @RequestParam(defaultValue = "ratings.value") String sort,
             @RequestParam(defaultValue = "desc") String order,
             @RequestParam(defaultValue = "") String category,
-            @RequestParam(defaultValue = "") String search)
+            @RequestParam(defaultValue = "") String search,
+            @RequestParam(defaultValue = "0") int minPrice,
+            @RequestParam(defaultValue = "-1") int maxPrice)
     {
         Page<Product> productsPage;
         if (!category.isBlank())
-            productsPage = productService.getPagedProducts(page, size, sort, order, ProductService.Category.valueOf(category));
+            productsPage = productService.getPagedProducts(page, size, sort, order, ProductService.Category.valueOf(category), minPrice, maxPrice != -1 ? maxPrice : Integer.MAX_VALUE);
         else if (!search.isBlank())
-            productsPage = productService.getPagedProducts(page, size, sort, order, search);
+            productsPage = productService.getPagedProducts(page, size, sort, order, search, minPrice, maxPrice != -1 ? maxPrice : Integer.MAX_VALUE);
         else
             productsPage = productService.getPagedProducts(page, size, sort, order);
 

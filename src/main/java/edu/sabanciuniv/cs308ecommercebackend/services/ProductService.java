@@ -52,27 +52,30 @@ public class ProductService
         ));
     }
 
-    public Page<Product> getPagedProducts(int page, int size, String sort, String order, Category category)
+    public Page<Product> getPagedProducts(int page, int size, String sort, String order, Category category, int minPrice, int maxPrice)
     {
-        return pagedProductRepository.findAllByCategoryContainingIgnoreCase(
+        return pagedProductRepository.findAllByCategoryContainingIgnoreCaseAndPriceIsBetween(
                 category.name(),
+                minPrice,
+                maxPrice,
                 PageRequest.of(
-                    page,
-                    size,
-                    order.equals("desc") ? Sort.by(sort).descending() : Sort.by(sort).ascending()
+                        page,
+                        size,
+                        order.equals("desc") ? Sort.by(sort).descending() : Sort.by(sort).ascending()
                 )
         );
     }
 
-    public Page<Product> getPagedProducts(int page, int size, String sort, String order, String searchQuery)
+    public Page<Product> getPagedProducts(int page, int size, String sort, String order, String searchQuery, int minPrice, int maxPrice)
     {
-        return pagedProductRepository.findByNameContainingIgnoreCaseOrDescriptionContainingIgnoreCase(
+        return pagedProductRepository.findAllByKeywordAndFilterByPriceRange(
                 searchQuery,
-                searchQuery,
+                minPrice,
+                maxPrice,
                 PageRequest.of(
-                    page,
-                    size,
-                    order.equals("desc") ? Sort.by(sort).descending() : Sort.by(sort).ascending()
+                        page,
+                        size,
+                        order.equals("desc") ? Sort.by(sort).descending() : Sort.by(sort).ascending()
                 )
         );
     }
