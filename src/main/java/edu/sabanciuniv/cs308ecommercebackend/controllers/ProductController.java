@@ -24,11 +24,9 @@ public class ProductController
     {
         Optional<Product> product = productService.getProduct(id);
 
-        return new TeknocsResponse<>(
-                product.isPresent() ? HttpStatus.OK : HttpStatus.BAD_REQUEST,
-                product.isPresent() ? "Successfully returned product." : "Product does not exist.",
-                product.orElse(null)
-        );
+        return product
+                .map(value -> new TeknocsResponse<>(HttpStatus.OK, "Successfully returned product.", value))
+                .orElseGet(() -> new TeknocsResponse<>(HttpStatus.NOT_FOUND, "Product not found.", null));
     }
 
     @GetMapping("/products")
