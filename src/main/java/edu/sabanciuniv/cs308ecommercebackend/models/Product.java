@@ -30,6 +30,7 @@ public class Product
     List<String> imageUrls;
     String category;
     List<String> subcategories;
+    Integer stock;
     Ratings ratings;
     List<ExtraProperty> extraProps;
 
