@@ -25,6 +25,8 @@ public class UserService
 
     public User createAccount(String firstName, String lastName, String email, String password, Date birthDate) throws Exception
     {
+        // TODO Check if user already exists to prevent overwrite!!!
+
         return userRepository.save(User.builder()
                 .name(firstName)
                 .surname(lastName)
