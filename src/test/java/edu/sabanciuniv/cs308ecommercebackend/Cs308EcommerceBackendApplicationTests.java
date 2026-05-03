@@ -28,12 +28,12 @@ class Cs308EcommerceBackendApplicationTests
     @Test
     void contextLoads()
     {
-        assert(authController != null);
-        assert(productController != null);
-        assert(testController != null);
+        assert authController != null;
+        assert productController != null;
+        assert testController != null;
 
-        assert(userService != null);
-        assert(productService != null);
+        assert userService != null;
+        assert productService != null;
     }
 
     // TODO Test Security
