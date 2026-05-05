@@ -6,8 +6,12 @@ import edu.sabanciuniv.cs308ecommercebackend.models.payloads.auth.AuthLogin;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.auth.AuthRegister;
 import edu.sabanciuniv.cs308ecommercebackend.services.UserService;
 import edu.sabanciuniv.cs308ecommercebackend.utils.JWTUtils;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.tomcat.util.http.SameSiteCookies;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -51,7 +55,7 @@ public class AuthController
     }
 
     @PostMapping("/login")
-    public TeknocsResponse<AuthLogin.Response> login(@RequestBody AuthLogin.Request request)
+    public TeknocsResponse<AuthLogin.Response> login(@RequestBody AuthLogin.Request request, HttpServletResponse response)
     {
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
         try
@@ -66,6 +70,16 @@ public class AuthController
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
         String token = jwtUtil.generateToken(userDetails.getUsername());
 
+        ResponseCookie cookie = ResponseCookie.from("_TCS_AUTH", token)
+                .httpOnly(true)
+                .secure(true)
+                .path("/")
+                .maxAge(2100000)
+                .sameSite(SameSiteCookies.STRICT.toString())
+                .build();
+
+        response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+
         return new TeknocsResponse<>(
                 HttpStatus.OK,
                 "User logged in successfully.",
@@ -78,17 +92,20 @@ public class AuthController
     }
 
     @GetMapping("/check-auth")
-    public TeknocsResponse<AuthLogin.Response> checkAuthentication(@RequestHeader("Authorization") String token)
+    public TeknocsResponse<AuthLogin.Response> checkAuthentication(@CookieValue(name = "_TCS_AUTH", defaultValue = "NOT_AUTH") String token)
     {
+        if (token.equals("NOT_AUTH"))
+            return new TeknocsResponse<>(HttpStatus.UNAUTHORIZED, "User is not authorized.", null);
+
         AuthLogin.Response response = AuthLogin.Response
                 .builder()
-                .token(token.substring(7))
+                .token(token)
                 .user(userService.getUserByToken(token))
                 .build();
 
         return new TeknocsResponse<>(
                 HttpStatus.OK,
-                "Authentication valid, logged in as %s".formatted(response.getUser().getEmail()),
+                "Authentication valid, logged in as %s.".formatted(response.getUser().getEmail()),
                 response
         );
     }

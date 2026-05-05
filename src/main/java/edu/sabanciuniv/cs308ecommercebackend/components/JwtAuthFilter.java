@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter
@@ -29,22 +30,17 @@ public class JwtAuthFilter extends OncePerRequestFilter
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException
     {
-        final String authorizationHeader = request.getHeader("Authorization");
-
         String username = null;
         String jwtToken = null;
 
-        if (authorizationHeader != null && authorizationHeader.startsWith("Bearer "))
+        try
         {
-            jwtToken = authorizationHeader.substring(7);
-            try
-            {
-                username = jwtUtils.extractUsername(jwtToken);
-            }
-            catch (Exception e)
-            {
-                System.out.println("Error extracting username from token: " + e.getMessage());
-            }
+            jwtToken = Arrays.stream(request.getCookies()).filter(cookie -> cookie.getName().equals("_TCS_AUTH")).findFirst().orElseThrow().getValue();
+            username = jwtUtils.extractUsername(jwtToken);
+        }
+        catch (Exception e)
+        {
+            System.out.println("Error extracting username from token: " + e.getMessage());
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null)

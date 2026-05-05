@@ -13,7 +13,7 @@ import java.time.Instant;
 import java.util.Date;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+//@TestMethodOrder(MethodOrderer.OrderAnnotation.class) // Activate when required.
 public class UserServiceTests
 {
 
