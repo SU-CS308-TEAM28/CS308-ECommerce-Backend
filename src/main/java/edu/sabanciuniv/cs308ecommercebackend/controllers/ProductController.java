@@ -93,6 +93,13 @@ public class ProductController
     {
         User user = userService.getUserByToken(token);
 
+        if (commentService.getUserComment(user.getId(), id).isPresent())
+            return new TeknocsResponse<>(
+                    HttpStatus.FORBIDDEN,
+                    "User reviews are only allowed once per user.",
+                    null
+            );
+
         Comment comment = commentService.postComment(
                 id,
                 user.getId(),

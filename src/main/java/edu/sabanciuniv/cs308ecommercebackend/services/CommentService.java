@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class CommentService
@@ -38,6 +39,11 @@ public class CommentService
                 5,
                 Sort.by(Sort.Direction.DESC, "creationDate")
         ));
+    }
+
+    public Optional<Comment> getUserComment (String userId, String productId)
+    {
+        return commentRepository.findAllByProductId(productId).filter(comment -> comment.getCommenter().getId().equals(userId)).findFirst();
     }
 
     public Comment postComment (String productId, String userId, String publicName, int rate, String comment)
