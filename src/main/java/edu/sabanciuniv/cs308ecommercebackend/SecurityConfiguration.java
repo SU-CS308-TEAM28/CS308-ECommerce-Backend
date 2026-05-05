@@ -35,7 +35,8 @@ public class SecurityConfiguration
                             "/api/auth/login",
                             "/api/auth/register",
                             "/api/product/products",
-                            "/api/product/{id}"
+                            "/api/product/{id}",
+                            "/api/product/{id}/comments"
                     ).permitAll()
                     .anyRequest().authenticated()
             )

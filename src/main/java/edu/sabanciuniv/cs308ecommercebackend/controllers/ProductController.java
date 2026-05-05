@@ -1,9 +1,15 @@
 package edu.sabanciuniv.cs308ecommercebackend.controllers;
 
+import edu.sabanciuniv.cs308ecommercebackend.models.Comment;
 import edu.sabanciuniv.cs308ecommercebackend.models.Product;
+import edu.sabanciuniv.cs308ecommercebackend.models.User;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.TeknocsResponse;
+import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.AddComment;
+import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.GetComments;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.GetProducts;
+import edu.sabanciuniv.cs308ecommercebackend.services.CommentService;
 import edu.sabanciuniv.cs308ecommercebackend.services.ProductService;
+import edu.sabanciuniv.cs308ecommercebackend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -18,6 +24,12 @@ public class ProductController
 
     @Autowired
     private ProductService productService;
+
+    @Autowired
+    private CommentService commentService;
+
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/{id}")
     public TeknocsResponse<Product> getProduct(@PathVariable String id)
@@ -57,5 +69,60 @@ public class ProductController
                         .build()
         );
     }
+
+    @GetMapping("/product/{id}/comments")
+    public TeknocsResponse<GetComments.Response> getComments(@PathVariable String id, @RequestParam(defaultValue = "0") int page)
+    {
+        Page<Comment> commentsPage = commentService.getPagedComments(id, page);
+
+        return new TeknocsResponse<>(
+                HttpStatus.OK,
+                "Successfully retrieved products.",
+                GetComments.Response.builder()
+                        .pageCount(commentsPage.getTotalPages())
+                        .comments(commentsPage.get())
+                        .build()
+        );
+    }
+
+    @PostMapping("/product/{id}/comments/add")
+    public TeknocsResponse<AddComment.Response> addComment(
+            @RequestBody AddComment.Request request,
+            @PathVariable String id,
+            @CookieValue(name = "_TCS_AUTH", defaultValue = "NOT_AUTH") String token)
+    {
+        User user = userService.getUserByToken(token);
+
+        if (commentService.getUserComment(user.getId(), id).isPresent())
+            return new TeknocsResponse<>(
+                    HttpStatus.FORBIDDEN,
+                    "User reviews are only allowed once per user.",
+                    null
+            );
+
+        Comment comment = commentService.postComment(
+                id,
+                user.getId(),
+                request.isNameShown() ?
+                        user.getName() + " " + user.getSurname() :
+                        user.getName().charAt(0) + "*** " + user.getSurname().charAt(0) + "***",
+                request.getRate(),
+                request.getComment()
+        );
+
+        if (comment != null)
+            return new TeknocsResponse<>(
+                    HttpStatus.OK,
+                    "Comment posted successfully, waiting for approval...",
+                    null
+            );
+        else
+            return new TeknocsResponse<>(
+                    HttpStatus.BAD_REQUEST,
+                    "Comment was unable to be posted. Unexpected error.",
+                    null
+            );
+    }
+
 
 }
