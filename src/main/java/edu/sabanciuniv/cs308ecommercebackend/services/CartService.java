@@ -48,6 +48,9 @@ public class CartService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new Exception("Product not found"));
 
+        if (product.getStock() == 0)
+            throw new Exception("Product is out of stock");
+
         if (quantity == null || quantity <= 0)
             throw new Exception("Quantity must be greater than zero");
 
