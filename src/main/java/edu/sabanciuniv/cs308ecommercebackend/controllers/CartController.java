@@ -39,6 +39,8 @@ public class CartController {
     public TeknocsResponse<?> increaseQuantity(
             @CookieValue(name = "_TCS_AUTH") String token,
             @RequestBody ChangeQuantity request) {
+        if (request.getAmount() == null || request.getAmount() <= 0)
+            return new TeknocsResponse<>(HttpStatus.BAD_REQUEST, "Amount must be greater than zero", null);
         try {
             return new TeknocsResponse<>(HttpStatus.OK, "Quantity increased", cartService.increaseQuantity(token, request.getProductId(), request.getAmount()));
         } catch (Exception e) {
@@ -50,6 +52,8 @@ public class CartController {
     public TeknocsResponse<?> decreaseQuantity(
             @CookieValue(name = "_TCS_AUTH") String token,
             @RequestBody ChangeQuantity request) {
+        if (request.getAmount() == null || request.getAmount() <= 0)
+            return new TeknocsResponse<>(HttpStatus.BAD_REQUEST, "Amount must be greater than zero", null);
         try {
             return new TeknocsResponse<>(HttpStatus.OK, "Quantity decreased", cartService.decreaseQuantity(token, request.getProductId(), request.getAmount()));
         } catch (Exception e) {
