@@ -1,34 +1,31 @@
 package edu.sabanciuniv.cs308ecommercebackend.controllers;
 
-import edu.sabanciuniv.cs308ecommercebackend.models.payloads.TeknocsResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.web.servlet.client.RestTestClient;
 
 import java.util.Map;
-
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureRestTestClient
+@SpringBootTest
 public class TestControllerTests
 {
 
-    @LocalServerPort
-    private int port;
-
     @Autowired
-    private RestTestClient restTestClient;
+    private TestController testController;
+
+    @Test
+    void doesTestReturnSuccessfulStatusAndMessage ()
+    {
+        Map<?, ?> responseBody = testController.test().getBody();
+
+        assert testController.test().getStatusCode().is2xxSuccessful();
+        assert responseBody != null;
+        assert responseBody.get("message").equals("Test endpoint request successful.");
+    }
 
     @Test
     void doesTestReturnValidTimestampInTime ()
     {
-        Map<?, ?> responseBody = restTestClient.get()
-                .uri("http://localhost:%d/api/test".formatted(port))
-                .exchange()
-                .expectBody(Map.class)
-                .returnResult().getResponseBody();
+        Map<?, ?> responseBody = testController.test().getBody();
 
         assert responseBody != null;
         assert responseBody.get("data") instanceof Map;

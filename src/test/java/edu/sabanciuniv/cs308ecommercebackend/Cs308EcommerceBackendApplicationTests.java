@@ -9,34 +9,38 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest
 class Cs308EcommerceBackendApplicationTests
 {
 
-    // -----------Controllers------------
-    @Autowired private AuthController authController;
-    @Autowired private ProductController productController;
-    @Autowired private TestController testController;
-    // ----------------------------------
+    @Autowired
+    private AuthController authController;
 
-    // -----------Services------------
-    @Autowired private UserService userService;
-    @Autowired private ProductService productService;
-    // -------------------------------
+    @Autowired
+    private ProductController productController;
 
+    @Autowired
+    private TestController testController;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ProductService productService;
 
     @Test
-    void contextLoads()
+    void doControllersAutowired()
     {
         assert authController != null;
         assert productController != null;
         assert testController != null;
+    }
 
+    @Test
+    void doServicesAutowired()
+    {
         assert userService != null;
         assert productService != null;
     }
-
-    // TODO Test Security
-    // TODO Test MongoDB connection sanity (may be dropped)
 
 }

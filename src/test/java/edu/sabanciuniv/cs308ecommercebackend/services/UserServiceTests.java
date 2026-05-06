@@ -2,54 +2,137 @@ package edu.sabanciuniv.cs308ecommercebackend.services;
 
 import edu.sabanciuniv.cs308ecommercebackend.models.User;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.UserRepository;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
+import edu.sabanciuniv.cs308ecommercebackend.utils.JWTUtils;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Instant;
 import java.util.Date;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-//@TestMethodOrder(MethodOrderer.OrderAnnotation.class) // Activate when required.
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+@ExtendWith(MockitoExtension.class)
 public class UserServiceTests
 {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
+    @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private JWTUtils jwtUtils;
+
+    @InjectMocks
+    private UserService userService;
+
     @Test
-    void doesUserServiceCreateUser()
+    void doesUserServiceCreateUser() throws Exception
     {
-        // Check if context required is loaded.
-        assert userService != null;
-        assert userRepository != null;
+        Date birthDate = Date.from(Instant.now());
+        ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
 
-        // Check if the test unit user isn't already on MongoDB.
-        assert userRepository.findByEmail("test@unit.run") == null;
+        when(passwordEncoder.encode("testunitrun")).thenReturn("encoded-password");
+        when(userRepository.save(org.mockito.ArgumentMatchers.any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Check if user creation is working.
-        User createdUser = null;
-        try
-        {
-            createdUser = userService.createAccount(
-                    "Test",
-                    "Run",
-                    "test@unit.run",
-                    "testunitrun",
-                    Date.from(Instant.now())
-            );
-        }
-        catch (Exception e) { assert false; }
-        assert userRepository.findByEmail("test@unit.run") != null;
+        User createdUser = userService.createAccount(
+                "Test",
+                "Run",
+                "test@unit.run",
+                "testunitrun",
+                birthDate
+        );
 
-        // Clean-up
-        userRepository.delete(createdUser);
+        verify(userRepository).save(userCaptor.capture());
+
+        assert createdUser != null;
+        assert createdUser.getEmail().equals("test@unit.run");
+        assert userCaptor.getValue().getPwdHash().equals("encoded-password");
+    }
+
+    @Test
+    void doesUserServiceCreateUserAssignDefaultUserType() throws Exception
+    {
+        when(passwordEncoder.encode("testunitrun")).thenReturn("encoded-password");
+        when(userRepository.save(org.mockito.ArgumentMatchers.any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        User createdUser = userService.createAccount(
+                "Test",
+                "Run",
+                "test@unit.run",
+                "testunitrun",
+                Date.from(Instant.now())
+        );
+
+        assert createdUser != null;
+        assert createdUser.getUserType().equals("user");
+    }
+
+    @Test
+    void doesUserServiceCreateUserInitializeUserData() throws Exception
+    {
+        when(passwordEncoder.encode("testunitrun")).thenReturn("encoded-password");
+        when(userRepository.save(org.mockito.ArgumentMatchers.any(User.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        User createdUser = userService.createAccount(
+                "Test",
+                "Run",
+                "test@unit.run",
+                "testunitrun",
+                Date.from(Instant.now())
+        );
+
+        assert createdUser != null;
+        assert createdUser.getUserData() != null;
+        assert createdUser.getUserData().getWishlist() != null;
+        assert createdUser.getUserData().getWishlist().isEmpty();
+        assert createdUser.getUserData().getShoppingCart() != null;
+        assert createdUser.getUserData().getShoppingCart().isEmpty();
+    }
+
+    @Test
+    void doesGetUserByEmailClearPasswordHash()
+    {
+        User user = User.builder()
+                .email("test@unit.run")
+                .pwdHash("encoded-password")
+                .build();
+
+        when(userRepository.findByEmail("test@unit.run")).thenReturn(user);
+
+        User responseUser = userService.getUserByEmail("test@unit.run");
+
+        assert responseUser != null;
+        assert responseUser.getEmail().equals("test@unit.run");
+        assert responseUser.getPwdHash().isEmpty();
+    }
+
+    @Test
+    void doesGetUserByTokenSupportBearerPrefix()
+    {
+        User user = User.builder()
+                .email("test@unit.run")
+                .pwdHash("encoded-password")
+                .build();
+
+        when(jwtUtils.extractUsername("token-value")).thenReturn("test@unit.run");
+        when(userRepository.findByEmail("test@unit.run")).thenReturn(user);
+
+        User responseUser = userService.getUserByToken("Bearer token-value");
+
+        assert responseUser != null;
+        assert responseUser.getEmail().equals("test@unit.run");
+        assert responseUser.getPwdHash().isEmpty();
     }
 
 }
