@@ -9,22 +9,22 @@ import edu.sabanciuniv.cs308ecommercebackend.repositories.UserRepository;
 import edu.sabanciuniv.cs308ecommercebackend.services.CommentService;
 import edu.sabanciuniv.cs308ecommercebackend.services.ProductService;
 import edu.sabanciuniv.cs308ecommercebackend.services.UserService;
+import edu.sabanciuniv.cs308ecommercebackend.utils.JWTUtils;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
-import edu.sabanciuniv.cs308ecommercebackend.utils.JWTUtils;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@SpringJUnitConfig(classes = {
-        AuthController.class,
-        ProductController.class,
-        TestController.class,
-        UserService.class,
-        ProductService.class
-})
+import static org.mockito.Mockito.mock;
+
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes = Cs308EcommerceBackendApplicationTests.TestConfig.class)
 class Cs308EcommerceBackendApplicationTests
 {
     @Autowired
@@ -36,29 +36,11 @@ class Cs308EcommerceBackendApplicationTests
     @Autowired
     private TestController testController;
 
-    @MockitoBean
-    private AuthenticationManager authenticationManager;
+    @Autowired
+    private UserService userService;
 
-    @MockitoBean
-    private UserDetailsService userDetailsService;
-
-    @MockitoBean
-    private UserRepository userRepository;
-
-    @MockitoBean
-    private PasswordEncoder passwordEncoder;
-
-    @MockitoBean
-    private JWTUtils jwtUtils;
-
-    @MockitoBean
-    private ProductRepository productRepository;
-
-    @MockitoBean
-    private PagedProductRepository pagedProductRepository;
-
-    @MockitoBean
-    private CommentService commentService;
+    @Autowired
+    private ProductService productService;
 
     @Test
     void doControllersAutowired()
@@ -69,11 +51,10 @@ class Cs308EcommerceBackendApplicationTests
     }
 
     @Test
-    void doServicesInstantiate(@Autowired UserService userService,
-                               @Autowired ProductService productService)
+    void doServicesAutowired()
     {
         assert userService != null;
         assert productService != null;
     }
-
+    
 }
