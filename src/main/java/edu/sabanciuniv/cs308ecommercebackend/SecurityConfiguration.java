@@ -38,6 +38,7 @@ public class SecurityConfiguration
                             "/api/product/{id}",
                             "/api/product/{id}/comments"
                     ).permitAll()
+                    .requestMatchers("/api/user/shopping-cart", "/api/user/shopping-cart/**").authenticated()
                     .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
