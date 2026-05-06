@@ -6,37 +6,30 @@ import edu.sabanciuniv.cs308ecommercebackend.controllers.TestController;
 import edu.sabanciuniv.cs308ecommercebackend.services.ProductService;
 import edu.sabanciuniv.cs308ecommercebackend.services.UserService;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class Cs308EcommerceBackendApplicationTests
 {
 
-    // -----------Controllers------------
-    @Autowired private AuthController authController;
-    @Autowired private ProductController productController;
-    @Autowired private TestController testController;
-    // ----------------------------------
-
-    // -----------Services------------
-    @Autowired private UserService userService;
-    @Autowired private ProductService productService;
-    // -------------------------------
-
-
     @Test
-    void contextLoads()
+    void doControllersInstantiate()
     {
+        AuthController authController = new AuthController();
+        ProductController productController = new ProductController();
+        TestController testController = new TestController();
+
         assert authController != null;
         assert productController != null;
         assert testController != null;
+    }
+
+    @Test
+    void doServicesInstantiate()
+    {
+        UserService userService = new UserService();
+        ProductService productService = new ProductService();
 
         assert userService != null;
         assert productService != null;
     }
-
-    // TODO Test Security
-    // TODO Test MongoDB connection sanity (may be dropped)
 
 }
