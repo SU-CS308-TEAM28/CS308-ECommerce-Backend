@@ -27,6 +27,15 @@ import edu.sabanciuniv.cs308ecommercebackend.utils.JWTUtils;
 })
 class Cs308EcommerceBackendApplicationTests
 {
+    @Autowired
+    private AuthController authController;
+
+    @Autowired
+    private ProductController productController;
+
+    @Autowired
+    private TestController testController;
+
     @MockitoBean
     private AuthenticationManager authenticationManager;
 
@@ -52,9 +61,7 @@ class Cs308EcommerceBackendApplicationTests
     private CommentService commentService;
 
     @Test
-    void doControllersInstantiate(@Autowired AuthController authController,
-                                  @Autowired ProductController productController,
-                                  @Autowired TestController testController)
+    void doControllersAutowired()
     {
         assert authController != null;
         assert productController != null;
