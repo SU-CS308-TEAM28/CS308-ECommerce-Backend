@@ -1,13 +1,16 @@
 package edu.sabanciuniv.cs308ecommercebackend.controllers;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.util.Map;
-
+@SpringBootTest
 public class TestControllerTests
 {
 
-    private final TestController testController = new TestController();
+    @Autowired
+    private TestController testController;
 
     @Test
     void doesTestReturnSuccessfulStatusAndMessage ()
