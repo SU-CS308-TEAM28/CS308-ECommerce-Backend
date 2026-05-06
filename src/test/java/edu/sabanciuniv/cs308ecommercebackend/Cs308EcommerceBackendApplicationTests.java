@@ -27,12 +27,6 @@ import edu.sabanciuniv.cs308ecommercebackend.utils.JWTUtils;
 })
 class Cs308EcommerceBackendApplicationTests
 {
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private ProductService productService;
-
     @MockitoBean
     private AuthenticationManager authenticationManager;
 
@@ -68,7 +62,8 @@ class Cs308EcommerceBackendApplicationTests
     }
 
     @Test
-    void doServicesInstantiate()
+    void doServicesInstantiate(@Autowired UserService userService,
+                               @Autowired ProductService productService)
     {
         assert userService != null;
         assert productService != null;
