@@ -36,9 +36,10 @@ public class SecurityConfiguration
                             "/api/auth/register",
                             "/api/product/products",
                             "/api/product/{id}",
-                            "/api/product/{id}/comments"
+                            "/api/product/{id}/comments",
+                            "/api/user/shopping-cart",
+                            "/api/user/shopping-cart/**"
                     ).permitAll()
-                    .requestMatchers("/api/user/shopping-cart", "/api/user/shopping-cart/**").authenticated()
                     .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
