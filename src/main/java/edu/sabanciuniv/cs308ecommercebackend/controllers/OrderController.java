@@ -101,8 +101,20 @@ public class OrderController
                 return new TeknocsResponse<>(HttpStatus.UNAUTHORIZED, "Authentication required", null);
             }
 
-            Order order = orderService.placeOrder(user);
-            cartService.replaceCart(token, null);
+            Order order = null;
+            try
+            {
+                order = orderService.placeOrder(user);
+                cartService.replaceCart(token, null);
+            }
+            catch (Exception e)
+            {
+                return new TeknocsResponse<>(
+                        HttpStatus.BAD_REQUEST,
+                        e.getMessage(),
+                        null
+                );
+            }
 
             try
             {
@@ -127,7 +139,11 @@ public class OrderController
                         order.getId(), e.getMessage(), e);
             }
 
-            return new TeknocsResponse<>(HttpStatus.OK, "Order placed", order.getId());
+            return new TeknocsResponse<>(
+                    HttpStatus.OK,
+                    "Order placed",
+                    order.getId()
+            );
         }
         catch (Exception e)
         {
