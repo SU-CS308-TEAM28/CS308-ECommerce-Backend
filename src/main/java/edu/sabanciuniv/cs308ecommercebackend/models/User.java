@@ -22,6 +22,7 @@ public class User
     String name;
     String surname;
     String email;
+    String taxId;
     String homeAddress;
     String pwdHash;
     Date birthDate;

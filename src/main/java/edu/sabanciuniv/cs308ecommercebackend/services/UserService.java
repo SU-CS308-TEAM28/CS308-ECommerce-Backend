@@ -31,6 +31,7 @@ public class UserService
                 .name(firstName)
                 .surname(lastName)
                 .email(email)
+                .taxId(null)
                 .homeAddress(null)
                 .pwdHash(passwordEncoder.encode(password))
                 .birthDate(birthDate)
@@ -43,6 +44,35 @@ public class UserService
                 )
                 .build()
         );
+    }
+
+    public boolean isUserProfileCompleted(User user)
+    {
+        return user.getHomeAddress() != null && !user.getHomeAddress().isBlank() &&
+                user.getTaxId() != null && !user.getTaxId().isBlank();
+    }
+
+    public User changeUserHomeAddress(String token, String homeAddress)
+    {
+        String email = jwtUtils.extractUsername(token);
+        User user = userRepository.findByEmail(email);
+        user.setHomeAddress(homeAddress);
+        user = userRepository.save(user);
+        user.setPwdHash("");
+
+        return user;
+    }
+
+    public User changeUserTaxId(String token, String taxId)
+    {
+        // TODO CHECK UP TAX LENGTH TO 11
+        String email = jwtUtils.extractUsername(token);
+        User user = userRepository.findByEmail(email);
+        user.setTaxId(taxId);
+        user = userRepository.save(user);
+        user.setPwdHash("");
+
+        return user;
     }
 
     public User getUserByEmail(String email)
