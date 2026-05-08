@@ -105,15 +105,27 @@ public class ProductController
                     null
             );
 
-        Comment comment = commentService.postComment(
-                id,
-                user.getId(),
-                request.isNameShown() ?
-                        user.getName() + " " + user.getSurname() :
-                        user.getName().charAt(0) + "*** " + user.getSurname().charAt(0) + "***",
-                request.getRate(),
-                request.getComment()
-        );
+        Comment comment = null;
+        try
+        {
+            comment = commentService.postComment(
+                    id,
+                    user.getId(),
+                    request.isNameShown() ?
+                            user.getName() + " " + user.getSurname() :
+                            user.getName().charAt(0) + "*** " + user.getSurname().charAt(0) + "***",
+                    request.getRate(),
+                    request.getComment()
+            );
+        }
+        catch (Exception e)
+        {
+            return new TeknocsResponse<>(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    "The product is updated partially! Notify an admin immediately. This shouldn't have happened.",
+                    null
+            );
+        }
 
         if (comment != null)
             return new TeknocsResponse<>(
