@@ -2,6 +2,7 @@ package edu.sabanciuniv.cs308ecommercebackend.services;
 
 import edu.sabanciuniv.cs308ecommercebackend.models.Order;
 import edu.sabanciuniv.cs308ecommercebackend.models.User;
+import edu.sabanciuniv.cs308ecommercebackend.models.payloads.cart.CartAction;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,22 +15,28 @@ import java.util.Set;
 @Service
 public class OrderService
 {
-
     @Autowired
     private OrderRepository orderRepository;
 
     @Autowired
     private CartService cartService;
 
-    public List<Order> getOrdersForUser (User user)
+    public List<Order> getOrdersForUser(User user)
     {
         return orderRepository.findAllByUserId(user.getId());
     }
 
-    public Order placeOrder (User user)
+    public Order placeOrder(User user)
     {
-        // TODO Card Check-ups
+        // TODO Card check-ups
         Set<User.ShoppingCartData> cartMeta = cartService.getCart(user);
+        List<CartAction.CartProduct> products = cartService.getCartProductsFromCartMeta(cartMeta);
+
+        double totalPrice = products.stream()
+                .mapToDouble(p -> p.getPrice()
+                        * (1.0 - p.getActiveDiscount() / 100.0)
+                        * p.getQuantity())
+                .sum();
 
         return orderRepository.save(
                 Order.builder()
@@ -38,12 +45,11 @@ public class OrderService
                         .products(cartMeta)
                         .status("PROCESSING")
                         .deliveryAddress(user.getHomeAddress())
-                        .totalPrice(cartService.getCartProductsFromCartMeta(cartMeta).stream().mapToDouble(product -> product.getPrice() * (1.0 - product.getActiveDiscount())).sum())
+                        .totalPrice(totalPrice)
                         .isCancelled(false)
                         .isCompleted(false)
                         .returnRequest(null)
                         .build()
         );
     }
-
 }
