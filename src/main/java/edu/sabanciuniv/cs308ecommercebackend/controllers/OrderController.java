@@ -15,12 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.CookieValue;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -47,10 +42,9 @@ public class OrderController
     private MailService mailService;
 
     @GetMapping("/orders")
-    public TeknocsResponse<List<GetOrders.OrderData>> getOrders(
-            @CookieValue(name = "_TCS_AUTH", defaultValue = "NOT_AUTH") String token)
+    public TeknocsResponse<List<GetOrders.OrderData>> getOrders(@CookieValue(name = "_TCS_AUTH", defaultValue = "NOT_AUTH") String token)
     {
-        List<GetOrders.OrderData> orders = orderService.getOrdersForUser(userService.getUserByToken(token))
+        List<GetOrders.OrderData> orders = orderService.getOrdersOfUser(userService.getUserByToken(token))
                 .stream().map(order -> GetOrders.OrderData.builder()
                         .id(order.getId())
                         .userId(order.getUserId())
@@ -68,6 +62,29 @@ public class OrderController
                 HttpStatus.OK,
                 "Orders returned successfully.",
                 orders
+        );
+    }
+
+    @GetMapping("/order/{id}")
+    public TeknocsResponse<GetOrders.OrderData> getOrder(@CookieValue(name = "_TCS_AUTH", defaultValue = "NOT_AUTH") String token, @PathVariable String id)
+    {
+        Order order = orderService.getOrderOfUser(userService.getUserByToken(token), id);
+        GetOrders.OrderData orderData = GetOrders.OrderData.builder()
+                .id(order.getId())
+                .userId(order.getUserId())
+                .orderDate(order.getOrderDate())
+                .products(cartService.getCartProductsFromCartMeta(order.getProducts()))
+                .status(order.getStatus())
+                .totalPrice(order.getTotalPrice())
+                .deliveryAddress(order.getDeliveryAddress())
+                .isCompleted(order.isCompleted())
+                .isCancelled(order.isCancelled())
+                .build();
+
+        return new TeknocsResponse<>(
+                HttpStatus.OK,
+                "Order returned successfully.",
+                orderData
         );
     }
 

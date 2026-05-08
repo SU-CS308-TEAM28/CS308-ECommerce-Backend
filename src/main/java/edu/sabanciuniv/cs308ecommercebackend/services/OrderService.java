@@ -21,9 +21,14 @@ public class OrderService
     @Autowired
     private CartService cartService;
 
-    public List<Order> getOrdersForUser(User user)
+    public List<Order> getOrdersOfUser(User user)
     {
         return orderRepository.findAllByUserId(user.getId());
+    }
+
+    public Order getOrderOfUser(User user, String orderId)
+    {
+        return orderRepository.findByIdAndUserId(orderId, user.getId());
     }
 
     public Order placeOrder(User user)
