@@ -65,7 +65,7 @@ public class OrderController
         );
     }
 
-    @GetMapping("/order/{id}")
+    @GetMapping("/{id}")
     public TeknocsResponse<GetOrders.OrderData> getOrder(@CookieValue(name = "_TCS_AUTH", defaultValue = "NOT_AUTH") String token, @PathVariable String id)
     {
         Order order = orderService.getOrderOfUser(userService.getUserByToken(token), id);
