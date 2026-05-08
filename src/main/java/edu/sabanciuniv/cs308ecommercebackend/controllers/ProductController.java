@@ -70,7 +70,7 @@ public class ProductController
         );
     }
 
-    @GetMapping("/product/{id}/comments")
+    @GetMapping("/{id}/comments")
     public TeknocsResponse<GetComments.Response> getComments(@PathVariable String id, @RequestParam(defaultValue = "0") int page)
     {
         Page<Comment> commentsPage = commentService.getPagedComments(id, page);
@@ -80,12 +80,17 @@ public class ProductController
                 "Successfully retrieved products.",
                 GetComments.Response.builder()
                         .pageCount(commentsPage.getTotalPages())
-                        .comments(commentsPage.get())
+                        .comments(commentsPage.map(comment -> {
+                            if (!comment.isApproved())
+                                comment.setComment("");
+
+                            return comment;
+                        }).get())
                         .build()
         );
     }
 
-    @PostMapping("/product/{id}/comments/add")
+    @PostMapping("/{id}/comments/add")
     public TeknocsResponse<AddComment.Response> addComment(
             @RequestBody AddComment.Request request,
             @PathVariable String id,

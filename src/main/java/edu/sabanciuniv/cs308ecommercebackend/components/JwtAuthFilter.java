@@ -40,7 +40,8 @@ public class JwtAuthFilter extends OncePerRequestFilter
         }
         catch (Exception e)
         {
-            System.out.println("Error extracting username from token: " + e.getMessage());
+            // I mean I do believe that we should log this, but I like my console clean, soooo...
+            // System.out.println("Error extracting username from token: " + e.getMessage());
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null)
