@@ -22,7 +22,8 @@ public class ProductService
         COMPUTERS("Computers"),
         TABLETS("Tablets"),
         PHONES("Phones"),
-        HOME("Home");
+        HOME_AND_LIVING("Home & Living"),
+        TVs("TVs");
 
         private final String name;
     };

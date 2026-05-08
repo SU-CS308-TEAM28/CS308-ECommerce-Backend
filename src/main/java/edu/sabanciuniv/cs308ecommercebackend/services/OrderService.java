@@ -40,6 +40,11 @@ public class OrderService
         return orderRepository.findByIdAndUserId(orderId, user.getId());
     }
 
+    public Order getOrderOfUser(String productId, User user)
+    {
+        return orderRepository.findByProductsProductIdAndUserId(productId, user.getId());
+    }
+
     public Order placeOrder(User user) throws Exception
     {
         // TODO Card check-ups
