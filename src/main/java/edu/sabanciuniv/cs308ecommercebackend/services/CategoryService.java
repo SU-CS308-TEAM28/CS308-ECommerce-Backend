@@ -29,4 +29,9 @@ public class CategoryService
         return categoryRepository.findByAbbrvOrSubCategoriesAbbrv(abbrv, abbrv);
     }
 
+    public Category getSubCategory(String abbrv)
+    {
+        return categoryRepository.findBySubCategoriesAbbrv(abbrv).getSubCategories().stream().filter(s -> s.getAbbrv().equals(abbrv)).findFirst().orElseThrow();
+    }
+
 }

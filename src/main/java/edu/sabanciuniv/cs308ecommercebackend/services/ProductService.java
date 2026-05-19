@@ -1,5 +1,6 @@
 package edu.sabanciuniv.cs308ecommercebackend.services;
 
+import edu.sabanciuniv.cs308ecommercebackend.models.Category;
 import edu.sabanciuniv.cs308ecommercebackend.models.Product;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.PagedProductRepository;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.ProductRepository;
@@ -16,17 +17,6 @@ import java.util.Optional;
 @Service
 public class ProductService
 {
-
-    @AllArgsConstructor
-    public enum Category {
-        COMPUTERS("Computers"),
-        TABLETS("Tablets"),
-        PHONES("Phones"),
-        HOME_AND_LIVING("Home & Living"),
-        TVs("TVs");
-
-        private final String name;
-    };
 
     @Autowired
     private ProductRepository productRepository;
@@ -56,7 +46,7 @@ public class ProductService
     public Page<Product> getPagedProducts(int page, int size, String sort, String order, Category category, int minPrice, int maxPrice)
     {
         return pagedProductRepository.findAllByCategoryContainingIgnoreCaseAndPriceIsBetween(
-                category.name(),
+                category.getAbbrv(),
                 minPrice,
                 maxPrice,
                 PageRequest.of(

@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository;
 public interface CategoryRepository extends MongoRepository<Category, String>
 {
     Category findByAbbrvOrSubCategoriesAbbrv(String abbrv, String abbrvDup);
+    Category findBySubCategoriesAbbrv(String subAbbrv);
 }
