@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class MailService
 {
-    @Autowired
+    @Autowired(required = false)
     private JavaMailSender mailSender;
 
     @Value("${spring.mail.username:no-reply@teknocs.com}")
