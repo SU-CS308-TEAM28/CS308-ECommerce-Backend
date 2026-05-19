@@ -1,6 +1,7 @@
 package edu.sabanciuniv.cs308ecommercebackend.controllers;
 
 import edu.sabanciuniv.cs308ecommercebackend.models.Comment;
+import edu.sabanciuniv.cs308ecommercebackend.models.Order;
 import edu.sabanciuniv.cs308ecommercebackend.models.Product;
 import edu.sabanciuniv.cs308ecommercebackend.models.User;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.TeknocsResponse;
@@ -8,6 +9,7 @@ import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.AddComment;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.GetComments;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.GetProducts;
 import edu.sabanciuniv.cs308ecommercebackend.services.CommentService;
+import edu.sabanciuniv.cs308ecommercebackend.services.OrderService;
 import edu.sabanciuniv.cs308ecommercebackend.services.ProductService;
 import edu.sabanciuniv.cs308ecommercebackend.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +32,9 @@ public class ProductController
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private OrderService orderService;
 
     @GetMapping("/{id}")
     public TeknocsResponse<Product> getProduct(@PathVariable String id)
@@ -102,6 +107,14 @@ public class ProductController
             return new TeknocsResponse<>(
                     HttpStatus.FORBIDDEN,
                     "User reviews are only allowed once per user.",
+                    null
+            );
+
+        Order orderOfUser = orderService.getOrderOfUser(id, user);
+        if (orderOfUser == null || !orderOfUser.isCompleted())
+            return new TeknocsResponse<>(
+                    HttpStatus.FORBIDDEN,
+                    "In order to be able review a product, you must've purchased and received it.",
                     null
             );
 

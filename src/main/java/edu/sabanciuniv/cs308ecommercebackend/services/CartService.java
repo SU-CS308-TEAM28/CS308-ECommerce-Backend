@@ -54,6 +54,11 @@ public class CartService
         return resolveCart(user);
     }
 
+    public Set<User.ShoppingCartData> getCart(User user)
+    {
+        return resolveCart(user);
+    }
+
     public Set<User.ShoppingCartData> replaceCart(String token, Set<User.ShoppingCartData> newCart) {
         User user = getUserFromToken(token);
         resolveCart(user);
