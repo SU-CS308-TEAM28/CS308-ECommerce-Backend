@@ -37,4 +37,23 @@ public class WishlistController
         }
     }
 
+    @PostMapping("/add")
+    public TeknocsResponse<List<WishlistAction.WishlistProduct>> addToWishlist(
+            @CookieValue(name = AUTH_COOKIE) String token,
+            @RequestBody WishlistAction.Request request)
+    {
+        try
+        {
+            return new TeknocsResponse<>(
+                    HttpStatus.OK,
+                    "Item added to wishlist",
+                    wishlistService.getWishlistProductsFromMeta(wishlistService.addToWishlist(token, request.getProductId()))
+            );
+        }
+        catch (Exception e)
+        {
+            return new TeknocsResponse<>(HttpStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+
 }
