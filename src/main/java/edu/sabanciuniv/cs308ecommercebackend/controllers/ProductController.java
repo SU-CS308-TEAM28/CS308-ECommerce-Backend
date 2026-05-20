@@ -5,6 +5,7 @@ import edu.sabanciuniv.cs308ecommercebackend.models.payloads.TeknocsResponse;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.AddComment;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.GetComments;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.GetProducts;
+import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.ProductAction;
 import edu.sabanciuniv.cs308ecommercebackend.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,6 +33,32 @@ public class ProductController
 
     @Autowired
     private OrderService orderService;
+
+    @PostMapping("/add")
+    public TeknocsResponse<Product> addProduct(@RequestBody ProductAction.Request request)
+    {
+        try
+        {
+            return new TeknocsResponse<>(HttpStatus.CREATED, "Product added successfully.", productService.addProduct(request));
+        }
+        catch (Exception e)
+        {
+            return new TeknocsResponse<>(HttpStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+
+    @PutMapping("/{id}")
+    public TeknocsResponse<Product> updateProduct(@PathVariable String id, @RequestBody ProductAction.Request request)
+    {
+        try
+        {
+            return new TeknocsResponse<>(HttpStatus.OK, "Product updated successfully.", productService.updateProduct(id, request));
+        }
+        catch (Exception e)
+        {
+            return new TeknocsResponse<>(HttpStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
 
     @GetMapping("/{id}")
     public TeknocsResponse<Product> getProduct(@PathVariable String id)
