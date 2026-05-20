@@ -2,6 +2,7 @@ package edu.sabanciuniv.cs308ecommercebackend.services;
 
 import edu.sabanciuniv.cs308ecommercebackend.models.Category;
 import edu.sabanciuniv.cs308ecommercebackend.models.Product;
+import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.ProductAction;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.PagedProductRepository;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.ProductRepository;
 import lombok.AllArgsConstructor;
@@ -23,6 +24,9 @@ public class ProductService
 
     @Autowired
     private PagedProductRepository pagedProductRepository;
+
+    @Autowired
+    private CategoryService categoryService;
 
     public Optional<Product> getProduct(String id)
     {
@@ -69,6 +73,62 @@ public class ProductService
                         order.equals("desc") ? Sort.by(sort).descending() : Sort.by(sort).ascending()
                 )
         );
+    }
+
+    public Product addProduct(ProductAction.Request request) throws Exception
+    {
+        categoryService.validateCategory(request.getCategory());
+
+        if (request.getSubcategories() != null)
+            for (String sub : request.getSubcategories())
+                categoryService.validateSubCategory(sub);
+
+        return productRepository.save(Product.builder()
+                .name(request.getName())
+                .description(request.getDescription())
+                .price(request.getPrice())
+                .activeDiscount(request.getActiveDiscount())
+                .model(request.getModel())
+                .serialNumber(request.getSerialNumber())
+                .warrantyStatus(request.getWarrantyStatus())
+                .distributorInformation(request.getDistributorInformation())
+                .thumbnailUrl(request.getThumbnailUrl())
+                .imageUrls(request.getImageUrls())
+                .category(request.getCategory())
+                .subcategories(request.getSubcategories())
+                .stock(request.getStock())
+                .ratings(Product.Ratings.builder().count(0).value(0.0).build())
+                .extraProps(request.getExtraProps())
+                .build());
+    }
+
+    public Product updateProduct(String id, ProductAction.Request request) throws Exception
+    {
+        Product existing = productRepository.findById(id)
+                .orElseThrow(() -> new Exception("Product with id '" + id + "' not found."));
+
+        categoryService.validateCategory(request.getCategory());
+
+        if (request.getSubcategories() != null)
+            for (String sub : request.getSubcategories())
+                categoryService.validateSubCategory(sub);
+
+        existing.setName(request.getName());
+        existing.setDescription(request.getDescription());
+        existing.setPrice(request.getPrice());
+        existing.setActiveDiscount(request.getActiveDiscount());
+        existing.setModel(request.getModel());
+        existing.setSerialNumber(request.getSerialNumber());
+        existing.setWarrantyStatus(request.getWarrantyStatus());
+        existing.setDistributorInformation(request.getDistributorInformation());
+        existing.setThumbnailUrl(request.getThumbnailUrl());
+        existing.setImageUrls(request.getImageUrls());
+        existing.setCategory(request.getCategory());
+        existing.setSubcategories(request.getSubcategories());
+        existing.setStock(request.getStock());
+        existing.setExtraProps(request.getExtraProps());
+
+        return productRepository.save(existing);
     }
 
 }
