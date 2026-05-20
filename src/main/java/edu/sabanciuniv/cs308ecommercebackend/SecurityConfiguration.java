@@ -26,7 +26,7 @@ public class SecurityConfiguration
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception
     {
-        // TODO Adjust permissions for endpoints.
+        // TODO Adjust permissions for endpoints via granted authorities.
         httpSecurity
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests((authorize) -> authorize
@@ -38,7 +38,9 @@ public class SecurityConfiguration
                             "/api/product/{id}",
                             "/api/product/{id}/comments",
                             "/api/user/shopping-cart",
-                            "/api/user/shopping-cart/**"
+                            "/api/user/shopping-cart/**",
+                            "/api/product/category/list",
+                            "/api/product/category/add"
                     ).permitAll()
                     .anyRequest().authenticated()
             )

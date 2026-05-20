@@ -1,17 +1,11 @@
 package edu.sabanciuniv.cs308ecommercebackend.controllers;
 
-import edu.sabanciuniv.cs308ecommercebackend.models.Comment;
-import edu.sabanciuniv.cs308ecommercebackend.models.Order;
-import edu.sabanciuniv.cs308ecommercebackend.models.Product;
-import edu.sabanciuniv.cs308ecommercebackend.models.User;
+import edu.sabanciuniv.cs308ecommercebackend.models.*;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.TeknocsResponse;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.AddComment;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.GetComments;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.GetProducts;
-import edu.sabanciuniv.cs308ecommercebackend.services.CommentService;
-import edu.sabanciuniv.cs308ecommercebackend.services.OrderService;
-import edu.sabanciuniv.cs308ecommercebackend.services.ProductService;
-import edu.sabanciuniv.cs308ecommercebackend.services.UserService;
+import edu.sabanciuniv.cs308ecommercebackend.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
@@ -29,6 +23,9 @@ public class ProductController
 
     @Autowired
     private CommentService commentService;
+
+    @Autowired
+    private CategoryService categoryService;
 
     @Autowired
     private UserService userService;
@@ -59,7 +56,7 @@ public class ProductController
     {
         Page<Product> productsPage;
         if (!category.isBlank())
-            productsPage = productService.getPagedProducts(page, size, sort, order, ProductService.Category.valueOf(category), minPrice, maxPrice != -1 ? maxPrice : Integer.MAX_VALUE);
+            productsPage = productService.getPagedProducts(page, size, sort, order, Category.builder().abbrv(category).build(), minPrice, maxPrice != -1 ? maxPrice : Integer.MAX_VALUE);
         else if (!search.isBlank())
             productsPage = productService.getPagedProducts(page, size, sort, order, search, minPrice, maxPrice != -1 ? maxPrice : Integer.MAX_VALUE);
         else
@@ -70,7 +67,10 @@ public class ProductController
                 "Successfully retrieved products.",
                 GetProducts.Response.builder()
                         .pageCount(productsPage.getTotalPages())
-                        .products(productsPage.get())
+                        .products(productsPage.stream().peek(product -> {
+                            product.setCategory(categoryService.getCategory(product.getCategory()).getLabel());
+                            product.setSubcategories(product.getSubcategories().stream().map(subcategory -> categoryService.getSubCategory(subcategory).getLabel()).toList());
+                        }))
                         .build()
         );
     }
