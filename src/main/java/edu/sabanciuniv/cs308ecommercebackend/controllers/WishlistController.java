@@ -19,4 +19,22 @@ public class WishlistController
     @Autowired
     private WishlistService wishlistService;
 
+    @GetMapping
+    public TeknocsResponse<List<WishlistAction.WishlistProduct>> getWishlist(
+            @CookieValue(name = AUTH_COOKIE) String token)
+    {
+        try
+        {
+            return new TeknocsResponse<>(
+                    HttpStatus.OK,
+                    "Wishlist retrieved",
+                    wishlistService.getWishlistProductsFromMeta(wishlistService.getWishlist(token))
+            );
+        }
+        catch (Exception e)
+        {
+            return new TeknocsResponse<>(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage(), null);
+        }
+    }
+
 }
