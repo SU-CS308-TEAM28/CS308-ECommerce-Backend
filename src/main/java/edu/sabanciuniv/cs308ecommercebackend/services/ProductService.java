@@ -102,4 +102,33 @@ public class ProductService
                 .build());
     }
 
+    public Product updateProduct(String id, ProductAction.Request request) throws Exception
+    {
+        Product existing = productRepository.findById(id)
+                .orElseThrow(() -> new Exception("Product with id '" + id + "' not found."));
+
+        categoryService.validateCategory(request.getCategory());
+
+        if (request.getSubcategories() != null)
+            for (String sub : request.getSubcategories())
+                categoryService.validateSubCategory(sub);
+
+        existing.setName(request.getName());
+        existing.setDescription(request.getDescription());
+        existing.setPrice(request.getPrice());
+        existing.setActiveDiscount(request.getActiveDiscount());
+        existing.setModel(request.getModel());
+        existing.setSerialNumber(request.getSerialNumber());
+        existing.setWarrantyStatus(request.getWarrantyStatus());
+        existing.setDistributorInformation(request.getDistributorInformation());
+        existing.setThumbnailUrl(request.getThumbnailUrl());
+        existing.setImageUrls(request.getImageUrls());
+        existing.setCategory(request.getCategory());
+        existing.setSubcategories(request.getSubcategories());
+        existing.setStock(request.getStock());
+        existing.setExtraProps(request.getExtraProps());
+
+        return productRepository.save(existing);
+    }
+
 }
