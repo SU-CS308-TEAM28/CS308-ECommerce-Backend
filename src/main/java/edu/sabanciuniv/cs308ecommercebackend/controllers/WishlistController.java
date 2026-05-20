@@ -56,4 +56,23 @@ public class WishlistController
         }
     }
 
+    @DeleteMapping("/remove")
+    public TeknocsResponse<List<WishlistAction.WishlistProduct>> removeFromWishlist(
+            @CookieValue(name = AUTH_COOKIE) String token,
+            @RequestBody WishlistAction.Request request)
+    {
+        try
+        {
+            return new TeknocsResponse<>(
+                    HttpStatus.OK,
+                    "Item removed from wishlist",
+                    wishlistService.getWishlistProductsFromMeta(wishlistService.removeFromWishlist(token, request.getProductId()))
+            );
+        }
+        catch (Exception e)
+        {
+            return new TeknocsResponse<>(HttpStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+
 }

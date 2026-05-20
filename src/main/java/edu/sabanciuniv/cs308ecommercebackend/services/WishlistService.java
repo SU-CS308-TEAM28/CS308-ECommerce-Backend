@@ -67,6 +67,23 @@ public class WishlistService
         return wishlist;
     }
 
+    public Set<User.WishlistData> removeFromWishlist(String token, String productId) throws Exception
+    {
+        User user = getUserFromToken(token);
+        Set<User.WishlistData> wishlist = resolveWishlist(user);
+
+        if (wishlist.isEmpty())
+            throw new Exception("Wishlist is empty");
+
+        boolean removed = wishlist.removeIf(item -> item.getProductId().equals(productId));
+        if (!removed)
+            throw new Exception("Product not found in wishlist");
+
+        user.getUserData().setWishlist(wishlist);
+        userRepository.save(user);
+        return wishlist;
+    }
+
     public List<WishlistAction.WishlistProduct> getWishlistProductsFromMeta(Set<User.WishlistData> wishlist)
     {
         return wishlist.stream().map(el -> {
