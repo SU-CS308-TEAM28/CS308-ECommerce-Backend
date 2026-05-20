@@ -88,6 +88,37 @@ public class OrderController
         );
     }
 
+    @DeleteMapping("/{id}")
+    public TeknocsResponse<GetOrders.OrderData> cancelOrder(@CookieValue(name = "_TCS_AUTH", defaultValue = "NOT_AUTH") String token, @PathVariable String id)
+    {
+        // TODO Comprehensive testing required. (Unit tests?)
+        Order order = null;
+        if(!orderService.getOrderOfUser(userService.getUserByToken(token), id).isCompleted())
+            order = orderService.cancelOrderOfUser(userService.getUserByToken(token), id);
+        else
+            return new TeknocsResponse<>(
+                    HttpStatus.BAD_REQUEST,
+                    "An order cannot be cancelled if it is already completed.",
+                    null
+            );
+
+        return new TeknocsResponse<>(
+                HttpStatus.OK,
+                "Order returned successfully.",
+                GetOrders.OrderData.builder()
+                        .id(order.getId())
+                        .userId(order.getUserId())
+                        .orderDate(order.getOrderDate())
+                        .products(cartService.getCartProductsFromCartMeta(order.getProducts()))
+                        .status(order.getStatus())
+                        .totalPrice(order.getTotalPrice())
+                        .deliveryAddress(order.getDeliveryAddress())
+                        .isCompleted(order.isCompleted())
+                        .isCancelled(order.isCancelled())
+                        .build()
+        );
+    }
+
     @PostMapping("/place")
     public TeknocsResponse<String> placeOrder(
             @CookieValue(name = "_TCS_AUTH", defaultValue = "NOT_AUTH") String token,

@@ -45,6 +45,27 @@ public class OrderService
         return orderRepository.findByProductsProductIdAndUserId(productId, user.getId());
     }
 
+    public Order cancelOrderOfUser(User user, String orderId)
+    {
+        Order order = orderRepository.findByIdAndUserId(orderId, user.getId());
+        order.setCancelled(true);
+
+        Set<User.ShoppingCartData> cartMeta = cartService.getCart(user);
+
+        List<Product> dirtyProducts = new ArrayList<Product>();
+        for (User.ShoppingCartData cartData : cartMeta)
+        {
+            Product product = productService.getProduct(cartData.getProductId()).orElseThrow();
+
+            product.setStock(product.getStock() + cartData.getQuantity());
+
+            dirtyProducts.add(product);
+        }
+        productRepository.saveAll(dirtyProducts);
+
+        return orderRepository.save(order);
+    }
+
     public Order placeOrder(User user) throws Exception
     {
         // TODO Card check-ups
