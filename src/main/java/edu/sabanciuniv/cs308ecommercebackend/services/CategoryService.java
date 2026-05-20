@@ -55,4 +55,16 @@ public class CategoryService
         return categoryRepository.findBySubCategoriesAbbrv(abbrv).getSubCategories().stream().filter(s -> s.getAbbrv().equals(abbrv)).findFirst().orElseThrow();
     }
 
+    public void validateCategory(String abbrv) throws Exception
+    {
+        if (categoryRepository.findByAbbrvOrSubCategoriesAbbrv(abbrv, abbrv) == null)
+            throw new Exception("Category '" + abbrv + "' does not exist.");
+    }
+
+    public void validateSubCategory(String abbrv) throws Exception
+    {
+        if (categoryRepository.findBySubCategoriesAbbrv(abbrv) == null)
+            throw new Exception("Subcategory '" + abbrv + "' does not exist.");
+    }
+
 }
