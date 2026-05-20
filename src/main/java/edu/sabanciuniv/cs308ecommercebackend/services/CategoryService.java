@@ -19,6 +19,27 @@ public class CategoryService
         return categoryRepository.save(category);
     }
 
+    public Category updateCategory(String categoryId, Category category)
+    {
+        // TODO Check if any product has the subcategory if up for removal.
+        category.setId(categoryId);
+        return categoryRepository.save(category);
+    }
+
+    public Category removeCategory(String categoryId) throws Exception
+    {
+        Category toRemove = categoryRepository.findById(categoryId).orElseThrow();
+
+        // TODO Check if any product has the category.
+
+        if (toRemove.getIsPrimitive())
+            throw new Exception("Primitive categories of the application cannot be removed.");
+
+        categoryRepository.delete(toRemove);
+
+        return toRemove;
+    }
+
     public List<Category> getAllCategories()
     {
         return categoryRepository.findAll();

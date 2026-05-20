@@ -20,6 +20,6 @@ public class Category
     String id;
     String abbrv;
     String label;
-    boolean isPrimitive;
+    Boolean isPrimitive;
     List<Category> subCategories;
 }
