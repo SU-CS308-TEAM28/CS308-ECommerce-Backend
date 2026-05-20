@@ -49,6 +49,20 @@ public class OrderService
     {
         Order order = orderRepository.findByIdAndUserId(orderId, user.getId());
         order.setCancelled(true);
+
+        Set<User.ShoppingCartData> cartMeta = cartService.getCart(user);
+
+        List<Product> dirtyProducts = new ArrayList<Product>();
+        for (User.ShoppingCartData cartData : cartMeta)
+        {
+            Product product = productService.getProduct(cartData.getProductId()).orElseThrow();
+
+            product.setStock(product.getStock() + cartData.getQuantity());
+
+            dirtyProducts.add(product);
+        }
+        productRepository.saveAll(dirtyProducts);
+
         return orderRepository.save(order);
     }
 
