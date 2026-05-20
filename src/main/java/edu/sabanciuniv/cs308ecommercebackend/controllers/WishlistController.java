@@ -27,7 +27,7 @@ public class WishlistController
         {
             return new TeknocsResponse<>(
                     HttpStatus.OK,
-                    "Wishlist retrieved",
+                    "Wishlist retrieved successfully.",
                     wishlistService.getWishlistProductsFromMeta(wishlistService.getWishlist(token))
             );
         }
@@ -46,7 +46,7 @@ public class WishlistController
         {
             return new TeknocsResponse<>(
                     HttpStatus.OK,
-                    "Item added to wishlist",
+                    "Product with id %s added to wishlist.".formatted(request.getProductId()),
                     wishlistService.getWishlistProductsFromMeta(wishlistService.addToWishlist(token, request.getProductId()))
             );
         }
@@ -65,7 +65,7 @@ public class WishlistController
         {
             return new TeknocsResponse<>(
                     HttpStatus.OK,
-                    "Item removed from wishlist",
+                    "Product with id %s removed from wishlist.".formatted(request.getProductId()),
                     wishlistService.getWishlistProductsFromMeta(wishlistService.removeFromWishlist(token, request.getProductId()))
             );
         }
