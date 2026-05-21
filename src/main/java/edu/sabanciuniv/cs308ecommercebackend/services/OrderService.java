@@ -10,10 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class OrderService
@@ -32,7 +29,22 @@ public class OrderService
 
     public List<Order> getOrdersOfUser(User user)
     {
-        return orderRepository.findAllByUserId(user.getId());
+        if (user.getUserType().equals("user"))
+            return orderRepository.findAllByUserId(user.getId());
+        else if (user.getUserType().equals("product_manager"))
+            return orderRepository.findAllByIsCompletedFalse();
+        else
+            return orderRepository.findAll();
+    }
+
+    public List<Order> getOrdersOfUserInDateRange(User user, Date start, Date end)
+    {
+        if (user.getUserType().equals("user"))
+            return orderRepository.findAllByUserIdAndOrderDateBetween(user.getId(), start, end);
+        else if (user.getUserType().equals("product_manager"))
+            return orderRepository.findAllByIsCompletedFalseAndOrderDateBetween(start, end);
+        else
+            return orderRepository.findAllByOrderDateBetween(start, end);
     }
 
     public Order getOrderOfUser(User user, String orderId)
@@ -49,8 +61,14 @@ public class OrderService
     {
         Order order = orderRepository.findById(orderId).orElseThrow();
 
-        if (newStatus.equals("PROCESSING") || newStatus.equals("IN_TRANSIT") || newStatus.equals("DELIVERED"))
+        // TODO Check if we are going back in the loop??
+        if (newStatus.equals("PROCESSING") || newStatus.equals("IN_TRANSIT"))
             order.setStatus(newStatus);
+        else if (newStatus.equals("DELIVERED"))
+        {
+            order.setStatus(newStatus);
+            order.setCompleted(true);
+        }
         else
             throw new Exception("Illegal state of order detected.");
 
@@ -117,7 +135,6 @@ public class OrderService
                         .totalPrice(totalPrice)
                         .isCancelled(false)
                         .isCompleted(false)
-                        .returnRequest(null)
                         .build()
         );
     }

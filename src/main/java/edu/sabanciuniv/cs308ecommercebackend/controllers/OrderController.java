@@ -12,12 +12,14 @@ import edu.sabanciuniv.cs308ecommercebackend.services.InvoiceService;
 import edu.sabanciuniv.cs308ecommercebackend.services.MailService;
 import edu.sabanciuniv.cs308ecommercebackend.services.OrderService;
 import edu.sabanciuniv.cs308ecommercebackend.services.UserService;
+import jakarta.websocket.server.PathParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -43,9 +45,12 @@ public class OrderController
     private MailService mailService;
 
     @GetMapping("/orders")
-    public TeknocsResponse<List<GetOrders.OrderData>> getOrders(@CookieValue(name = "_TCS_AUTH", defaultValue = "NOT_AUTH") String token)
+    public TeknocsResponse<List<GetOrders.OrderData>> getOrders(
+            @CookieValue(name = "_TCS_AUTH", defaultValue = "NOT_AUTH") String token,
+            @RequestParam(defaultValue = "0") Date start,
+            @RequestParam(defaultValue = "0") Date end)
     {
-        List<GetOrders.OrderData> orders = orderService.getOrdersOfUser(userService.getUserByToken(token))
+        List<GetOrders.OrderData> orders = (start.getTime() == 0 || end.getTime() == 0 ? orderService.getOrdersOfUser(userService.getUserByToken(token)) : orderService.getOrdersOfUserInDateRange(userService.getUserByToken(token), start, end))
                 .stream().map(order -> GetOrders.OrderData.builder()
                         .id(order.getId())
                         .userId(order.getUserId())
