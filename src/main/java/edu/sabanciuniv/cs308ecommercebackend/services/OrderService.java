@@ -84,6 +84,8 @@ public class OrderService
             product.setStock(product.getStock() - cartData.getQuantity());
 
             dirtyProducts.add(product);
+
+            cartData.setPrice(product.getPrice() * (1.0 - product.getActiveDiscount() / 100.0) * cartData.getQuantity());
         }
         productRepository.saveAll(dirtyProducts);
 
