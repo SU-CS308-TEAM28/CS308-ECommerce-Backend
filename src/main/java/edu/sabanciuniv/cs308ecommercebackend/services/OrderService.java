@@ -45,6 +45,18 @@ public class OrderService
         return orderRepository.findByProductsProductIdAndUserId(productId, user.getId());
     }
 
+    public Order updateOrder(String orderId, String newStatus) throws Exception
+    {
+        Order order = orderRepository.findById(orderId).orElseThrow();
+
+        if (newStatus.equals("PROCESSING") || newStatus.equals("IN_TRANSIT") || newStatus.equals("DELIVERED"))
+            order.setStatus(newStatus);
+        else
+            throw new Exception("Illegal state of order detected.");
+
+        return orderRepository.save(order);
+    }
+
     public Order cancelOrderOfUser(User user, String orderId)
     {
         Order order = orderRepository.findByIdAndUserId(orderId, user.getId());
@@ -84,6 +96,8 @@ public class OrderService
             product.setStock(product.getStock() - cartData.getQuantity());
 
             dirtyProducts.add(product);
+
+            cartData.setPrice(product.getPrice() * (1.0 - product.getActiveDiscount() / 100.0) * cartData.getQuantity());
         }
         productRepository.saveAll(dirtyProducts);
 

@@ -54,6 +54,7 @@ public class User
     public static class ShoppingCartData {
         String productId;
         Integer quantity;
+        Double price;
     }
 }
 
