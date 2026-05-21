@@ -2,9 +2,11 @@ package edu.sabanciuniv.cs308ecommercebackend.services;
 
 import edu.sabanciuniv.cs308ecommercebackend.models.Category;
 import edu.sabanciuniv.cs308ecommercebackend.models.Product;
+import edu.sabanciuniv.cs308ecommercebackend.models.User;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.ProductAction;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.PagedProductRepository;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.ProductRepository;
+import edu.sabanciuniv.cs308ecommercebackend.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class ProductService
@@ -27,6 +30,12 @@ public class ProductService
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private MailService mailService;
 
     public Optional<Product> getProduct(String id)
     {
@@ -135,7 +144,29 @@ public class ProductService
     {
         List<Product> products = productRepository.findAllById(productIds);
         products.forEach(p -> p.setActiveDiscount(discount));
-        return productRepository.saveAll(products);
+        List<Product> saved = productRepository.saveAll(products);
+
+        List<User> interestedUsers = userRepository.findAllByWishlistProductIdIn(productIds);
+        for (User user : interestedUsers)
+        {
+            if (user.getUserData() == null || user.getUserData().getWishlist() == null)
+                continue;
+
+            Set<String> userWishlistIds = new java.util.HashSet<>();
+            user.getUserData().getWishlist().forEach(w -> userWishlistIds.add(w.getProductId()));
+
+            List<Product> userProducts = saved.stream()
+                    .filter(p -> userWishlistIds.contains(p.getId()))
+                    .toList();
+
+            try
+            {
+                mailService.sendDiscountNotificationEmail(user.getEmail(), user.getName(), userProducts, discount);
+            }
+            catch (Exception ignored) {}
+        }
+
+        return saved;
     }
 
 }
