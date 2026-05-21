@@ -27,17 +27,4 @@ public class Order
     String deliveryAddress;
     boolean isCompleted;
     boolean isCancelled;
-    ReturnRequest returnRequest;
-
-    @Data
-    @Builder
-    @AllArgsConstructor
-    @NoArgsConstructor
-    public static class ReturnRequest
-    {
-        String reason;
-        Date requestDate;
-        boolean isApproved;
-        boolean isCompleted;
-    }
 }
