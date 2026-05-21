@@ -131,4 +131,11 @@ public class ProductService
         return productRepository.save(existing);
     }
 
+    public List<Product> bulkDiscount(List<String> productIds, double discount)
+    {
+        List<Product> products = productRepository.findAllById(productIds);
+        products.forEach(p -> p.setActiveDiscount(discount));
+        return productRepository.saveAll(products);
+    }
+
 }

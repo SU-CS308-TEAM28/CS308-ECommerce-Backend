@@ -3,6 +3,7 @@ package edu.sabanciuniv.cs308ecommercebackend.controllers;
 import edu.sabanciuniv.cs308ecommercebackend.models.*;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.TeknocsResponse;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.AddComment;
+import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.BulkDiscount;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.CommentAction;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.GetComments;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.GetProducts;
@@ -101,6 +102,16 @@ public class ProductController
                             product.setSubcategories(product.getSubcategories().stream().map(subcategory -> categoryService.getSubCategory(subcategory).getLabel()).toList());
                         }))
                         .build()
+        );
+    }
+
+    @PutMapping("/bulk-discount")
+    public TeknocsResponse<List<Product>> bulkDiscount(@RequestBody BulkDiscount.Request request)
+    {
+        return new TeknocsResponse<>(
+                HttpStatus.OK,
+                "Discount applied successfully.",
+                productService.bulkDiscount(request.getProductIds(), request.getDiscount())
         );
     }
 
