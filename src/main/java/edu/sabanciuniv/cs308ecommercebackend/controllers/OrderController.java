@@ -6,6 +6,7 @@ import edu.sabanciuniv.cs308ecommercebackend.models.payloads.TeknocsResponse;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.cart.CartAction;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.order.GetOrders;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.order.PlaceOrder;
+import edu.sabanciuniv.cs308ecommercebackend.models.payloads.order.UpdateOrder;
 import edu.sabanciuniv.cs308ecommercebackend.services.CartService;
 import edu.sabanciuniv.cs308ecommercebackend.services.InvoiceService;
 import edu.sabanciuniv.cs308ecommercebackend.services.MailService;
@@ -85,6 +86,43 @@ public class OrderController
                 HttpStatus.OK,
                 "Order returned successfully.",
                 orderData
+        );
+    }
+
+    @PutMapping("/{id}")
+    public TeknocsResponse<GetOrders.OrderData> updateOrderStatus(
+            @CookieValue(name = "_TCS_AUTH", defaultValue = "NOT_AUTH") String token,
+            @PathVariable String id,
+            @RequestBody UpdateOrder.Request data)
+    {
+        Order order = null;
+        try
+        {
+            order = orderService.updateOrder(id, data.getStatus());
+        }
+        catch (Exception e)
+        {
+            return new TeknocsResponse<>(
+                    HttpStatus.BAD_REQUEST,
+                    e.getMessage(),
+                    null
+            );
+        }
+
+        return new TeknocsResponse<>(
+                HttpStatus.OK,
+                "Order with id %s has been updated to status %s.".formatted(id, data.getStatus()),
+                GetOrders.OrderData.builder()
+                        .id(order.getId())
+                        .userId(order.getUserId())
+                        .orderDate(order.getOrderDate())
+                        .products(cartService.getCartProductsFromCartMeta(order.getProducts()))
+                        .status(order.getStatus())
+                        .totalPrice(order.getTotalPrice())
+                        .deliveryAddress(order.getDeliveryAddress())
+                        .isCompleted(order.isCompleted())
+                        .isCancelled(order.isCancelled())
+                        .build()
         );
     }
 
