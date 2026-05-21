@@ -1,10 +1,16 @@
 package edu.sabanciuniv.cs308ecommercebackend.controllers;
 
+import edu.sabanciuniv.cs308ecommercebackend.models.Category;
 import edu.sabanciuniv.cs308ecommercebackend.models.Product;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.GetProducts;
+import edu.sabanciuniv.cs308ecommercebackend.services.CategoryService;
+import edu.sabanciuniv.cs308ecommercebackend.services.CommentService;
+import edu.sabanciuniv.cs308ecommercebackend.services.OrderService;
 import edu.sabanciuniv.cs308ecommercebackend.services.ProductService;
+import edu.sabanciuniv.cs308ecommercebackend.services.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -34,6 +40,18 @@ public class ProductControllerTests
 
     @Mock
     private ProductService productService;
+
+    @Mock
+    private CommentService commentService;
+
+    @Mock
+    private CategoryService categoryService;
+
+    @Mock
+    private UserService userService;
+
+    @Mock
+    private OrderService orderService;
 
     @InjectMocks
     private ProductController productController;
@@ -74,6 +92,8 @@ public class ProductControllerTests
         Page<Product> productsPage = new PageImpl<>(List.of(product), PageRequest.of(0, 5), 8);
 
         when(productService.getPagedProducts(0, 5, "ratings.value", "desc")).thenReturn(productsPage);
+        when(categoryService.getCategory("COMPUTERS")).thenReturn(buildCategory("COMPUTERS", "Computers"));
+        when(categoryService.getSubCategory("LAPTOPS")).thenReturn(buildCategory("LAPTOPS", "Laptops"));
 
         var responseEntity = productController.getAllProducts(0, 5, "ratings.value", "desc", "", "", 0, -1);
         Map<String, Object> body = responseEntity.getBody();
@@ -86,11 +106,16 @@ public class ProductControllerTests
         assertInstanceOf(GetProducts.Response.class, payload);
         GetProducts.Response response = (GetProducts.Response) payload;
         assertEquals(2, response.getPageCount());
-        assertEquals(List.of(product), response.getProducts().toList());
+        List<Product> responseProducts = response.getProducts().toList();
+        assertEquals(List.of(product), responseProducts);
+        assertEquals("Computers", responseProducts.get(0).getCategory());
+        assertEquals(List.of("Laptops"), responseProducts.get(0).getSubcategories());
 
         verify(productService).getPagedProducts(0, 5, "ratings.value", "desc");
-        verify(productService, never()).getPagedProducts(anyInt(), anyInt(), anyString(), anyString(), any(ProductService.Category.class), anyInt(), anyInt());
+        verify(productService, never()).getPagedProducts(anyInt(), anyInt(), anyString(), anyString(), any(Category.class), anyInt(), anyInt());
         verify(productService, never()).getPagedProducts(anyInt(), anyInt(), anyString(), anyString(), anyString(), anyInt(), anyInt());
+        verify(categoryService).getCategory("COMPUTERS");
+        verify(categoryService).getSubCategory("LAPTOPS");
     }
 
     @Test
@@ -98,9 +123,12 @@ public class ProductControllerTests
     {
         Product product = buildProduct("product-2", "Tablet");
         Page<Product> productsPage = new PageImpl<>(List.of(product), PageRequest.of(1, 2), 4);
+        ArgumentCaptor<Category> categoryCaptor = ArgumentCaptor.forClass(Category.class);
 
-        when(productService.getPagedProducts(1, 2, "price", "asc", ProductService.Category.COMPUTERS, 10, Integer.MAX_VALUE))
+        when(productService.getPagedProducts(1, 2, "price", "asc", Category.builder().abbrv("COMPUTERS").build(), 10, Integer.MAX_VALUE))
                 .thenReturn(productsPage);
+        when(categoryService.getCategory("COMPUTERS")).thenReturn(buildCategory("COMPUTERS", "Computers"));
+        when(categoryService.getSubCategory("LAPTOPS")).thenReturn(buildCategory("LAPTOPS", "Laptops"));
 
         var responseEntity = productController.getAllProducts(1, 2, "price", "asc", "COMPUTERS", "", 10, -1);
         Map<String, Object> body = responseEntity.getBody();
@@ -112,9 +140,15 @@ public class ProductControllerTests
         assertInstanceOf(GetProducts.Response.class, payload);
         GetProducts.Response response = (GetProducts.Response) payload;
         assertEquals(2, response.getPageCount());
-        assertEquals(List.of(product), response.getProducts().toList());
+        List<Product> responseProducts = response.getProducts().toList();
+        assertEquals(List.of(product), responseProducts);
+        assertEquals("Computers", responseProducts.get(0).getCategory());
+        assertEquals(List.of("Laptops"), responseProducts.get(0).getSubcategories());
 
-        verify(productService).getPagedProducts(1, 2, "price", "asc", ProductService.Category.COMPUTERS, 10, Integer.MAX_VALUE);
+        verify(productService).getPagedProducts(org.mockito.ArgumentMatchers.eq(1), org.mockito.ArgumentMatchers.eq(2), org.mockito.ArgumentMatchers.eq("price"), org.mockito.ArgumentMatchers.eq("asc"), categoryCaptor.capture(), org.mockito.ArgumentMatchers.eq(10), org.mockito.ArgumentMatchers.eq(Integer.MAX_VALUE));
+        assertEquals("COMPUTERS", categoryCaptor.getValue().getAbbrv());
+        verify(categoryService).getCategory("COMPUTERS");
+        verify(categoryService).getSubCategory("LAPTOPS");
     }
 
     @Test
@@ -125,6 +159,8 @@ public class ProductControllerTests
 
         when(productService.getPagedProducts(0, 3, "name", "desc", "phone", 100, 500))
                 .thenReturn(productsPage);
+        when(categoryService.getCategory("COMPUTERS")).thenReturn(buildCategory("COMPUTERS", "Computers"));
+        when(categoryService.getSubCategory("LAPTOPS")).thenReturn(buildCategory("LAPTOPS", "Laptops"));
 
         var responseEntity = productController.getAllProducts(0, 3, "name", "desc", "", "phone", 100, 500);
         Map<String, Object> body = responseEntity.getBody();
@@ -136,9 +172,14 @@ public class ProductControllerTests
         assertInstanceOf(GetProducts.Response.class, payload);
         GetProducts.Response response = (GetProducts.Response) payload;
         assertEquals(1, response.getPageCount());
-        assertEquals(List.of(product), response.getProducts().toList());
+        List<Product> responseProducts = response.getProducts().toList();
+        assertEquals(List.of(product), responseProducts);
+        assertEquals("Computers", responseProducts.get(0).getCategory());
+        assertEquals(List.of("Laptops"), responseProducts.get(0).getSubcategories());
 
         verify(productService).getPagedProducts(0, 3, "name", "desc", "phone", 100, 500);
+        verify(categoryService).getCategory("COMPUTERS");
+        verify(categoryService).getSubCategory("LAPTOPS");
     }
 
     private Product buildProduct(String id, String name)
@@ -148,6 +189,15 @@ public class ProductControllerTests
                 .name(name)
                 .price(1999.99)
                 .category("COMPUTERS")
+                .subcategories(List.of("LAPTOPS"))
+                .build();
+    }
+
+    private Category buildCategory(String abbrv, String label)
+    {
+        return Category.builder()
+                .abbrv(abbrv)
+                .label(label)
                 .build();
     }
 

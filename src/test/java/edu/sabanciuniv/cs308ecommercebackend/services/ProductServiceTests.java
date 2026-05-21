@@ -1,5 +1,6 @@
 package edu.sabanciuniv.cs308ecommercebackend.services;
 
+import edu.sabanciuniv.cs308ecommercebackend.models.Category;
 import edu.sabanciuniv.cs308ecommercebackend.models.Product;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.PagedProductRepository;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.ProductRepository;
@@ -100,7 +101,7 @@ public class ProductServiceTests
                 any(Pageable.class)
         )).thenReturn(expectedPage);
 
-        Page<Product> result = productService.getPagedProducts(1, 3, "price", "asc", ProductService.Category.TABLETS, 100, 500);
+        Page<Product> result = productService.getPagedProducts(1, 3, "price", "asc", Category.builder().abbrv("TABLETS").build(), 100, 500);
 
         verify(pagedProductRepository).findAllByCategoryContainingIgnoreCaseAndPriceIsBetween(
                 org.mockito.ArgumentMatchers.eq("TABLETS"),
