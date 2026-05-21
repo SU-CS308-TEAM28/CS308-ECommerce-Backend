@@ -40,8 +40,7 @@ public class SecurityConfiguration
                             "/api/user/shopping-cart",
                             "/api/user/shopping-cart/**",
                             "/api/product/category/list",
-                            "/api/product/category/add",
-                            "/api/product/bulk-discount"
+                            "/api/product/category/add"
                     ).permitAll()
                     .anyRequest().authenticated()
             )

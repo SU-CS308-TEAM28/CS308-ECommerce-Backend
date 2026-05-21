@@ -16,7 +16,9 @@ import jakarta.websocket.server.PathParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -92,6 +94,32 @@ public class OrderController
                 "Order returned successfully.",
                 orderData
         );
+    }
+
+    @GetMapping("/{id}/invoice")
+    public ResponseEntity<byte[]> getInvoice(
+            @CookieValue(name = "_TCS_AUTH", defaultValue = "NOT_AUTH") String token,
+            @PathVariable String id,
+            @RequestParam(defaultValue = "false") boolean download)
+    {
+        try
+        {
+            User user = userService.getUserByToken(token);
+            Order order = orderService.getOrderOfUser(user, id);
+            List<CartAction.CartProduct> products = cartService.getCartProductsFromCartMeta(order.getProducts());
+            byte[] pdf = invoiceService.generateInvoicePdf(order, user, products);
+
+            String disposition = (download ? "attachment" : "inline") + "; filename=\"invoice-" + id + ".pdf\"";
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_TYPE, "application/pdf")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, disposition)
+                    .body(pdf);
+        }
+        catch (Exception e)
+        {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PutMapping("/{id}")
