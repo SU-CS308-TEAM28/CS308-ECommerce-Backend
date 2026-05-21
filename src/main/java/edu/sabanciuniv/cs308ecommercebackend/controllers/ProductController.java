@@ -3,6 +3,7 @@ package edu.sabanciuniv.cs308ecommercebackend.controllers;
 import edu.sabanciuniv.cs308ecommercebackend.models.*;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.TeknocsResponse;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.AddComment;
+import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.CommentAction;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.GetComments;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.GetProducts;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.ProductAction;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -179,6 +181,42 @@ public class ProductController
                     "Comment was unable to be posted. Unexpected error.",
                     null
             );
+    }
+
+    @GetMapping("/awaiting-comments")
+    public TeknocsResponse<List<Comment>> getAwaitingComments()
+    {
+        return new TeknocsResponse<>(
+                HttpStatus.OK,
+                "Successfully retrieved awaiting comments.",
+                commentService.getAwaitingComments()
+        );
+    }
+
+    @PutMapping("/{id}/comments/approve")
+    public TeknocsResponse<Comment> approveComment(@PathVariable String id, @RequestBody CommentAction.Request request)
+    {
+        try
+        {
+            return new TeknocsResponse<>(HttpStatus.OK, "Comment approved.", commentService.approveComment(request.getCommentId()));
+        }
+        catch (Exception e)
+        {
+            return new TeknocsResponse<>(HttpStatus.NOT_FOUND, "Comment not found.", null);
+        }
+    }
+
+    @PutMapping("/{id}/comments/disapprove")
+    public TeknocsResponse<Comment> disapproveComment(@PathVariable String id, @RequestBody CommentAction.Request request)
+    {
+        try
+        {
+            return new TeknocsResponse<>(HttpStatus.OK, "Comment disapproved.", commentService.disapproveComment(request.getCommentId()));
+        }
+        catch (Exception e)
+        {
+            return new TeknocsResponse<>(HttpStatus.NOT_FOUND, "Comment not found.", null);
+        }
     }
 
 

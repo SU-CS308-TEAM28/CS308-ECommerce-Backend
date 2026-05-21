@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.*;
@@ -74,6 +75,7 @@ public class CommentService
                         .rate(rate)
                         .comment(comment)
                         .isApproved(false)
+                        .isChecked(false)
                         .build()
         );
 
@@ -100,6 +102,27 @@ public class CommentService
         productRepository.save(product);
 
         return savedComment;
+    }
+
+    public List<Comment> getAwaitingComments()
+    {
+        return commentRepository.findAllByIsChecked(false);
+    }
+
+    public Comment approveComment(String commentId)
+    {
+        Comment comment = commentRepository.findById(commentId).orElseThrow();
+        comment.setApproved(true);
+        comment.setChecked(true);
+        return commentRepository.save(comment);
+    }
+
+    public Comment disapproveComment(String commentId)
+    {
+        Comment comment = commentRepository.findById(commentId).orElseThrow();
+        comment.setApproved(false);
+        comment.setChecked(true);
+        return commentRepository.save(comment);
     }
 
 }

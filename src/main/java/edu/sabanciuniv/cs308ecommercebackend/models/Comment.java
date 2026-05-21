@@ -24,6 +24,7 @@ public class Comment
     int rate;
     String comment;
     boolean isApproved;
+    boolean isChecked;
 
     @Data
     @Builder
