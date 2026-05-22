@@ -3,9 +3,11 @@ package edu.sabanciuniv.cs308ecommercebackend.services;
 import edu.sabanciuniv.cs308ecommercebackend.models.Order;
 import edu.sabanciuniv.cs308ecommercebackend.models.Returns;
 import edu.sabanciuniv.cs308ecommercebackend.models.User;
+import edu.sabanciuniv.cs308ecommercebackend.models.payloads.cart.CartAction;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.returns.ReturnRequest;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.OrderRepository;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.ReturnRepository;
+import edu.sabanciuniv.cs308ecommercebackend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,6 +25,15 @@ public class ReturnService
 
     @Autowired
     private OrderRepository orderRepository;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ProductService productService;
+
+    @Autowired
+    private MailService mailService;
 
     public Returns requestReturn(User user, String orderId, List<ReturnRequest.Request.ProductReturn> returningProducts, String reason) throws Exception
     {
@@ -43,10 +54,11 @@ public class ReturnService
             if (item.getQuantity() > orderProduct.getQuantity())
                 throw new Exception("Return quantity exceeds purchased quantity for product " + item.getProductId() + ".");
 
+            double refundAmount = (orderProduct.getPrice() / orderProduct.getQuantity()) * item.getQuantity();
             returnSet.add(User.ShoppingCartData.builder()
                     .productId(item.getProductId())
                     .quantity(item.getQuantity())
-                    .price(orderProduct.getPrice())
+                    .price(refundAmount)
                     .build());
         }
 
@@ -71,7 +83,31 @@ public class ReturnService
     {
         Returns returns = returnRepository.findById(returnId).orElseThrow();
         returns.setCompleted(true);
-        return returnRepository.save(returns);
+        Returns saved = returnRepository.save(returns);
+
+        try
+        {
+            Order order = orderRepository.findById(saved.getOrderId()).orElseThrow();
+            User user = userRepository.findById(order.getUserId()).orElseThrow();
+
+            List<CartAction.CartProduct> items = saved.getReturningProducts().stream()
+                    .map(p -> CartAction.CartProduct.builder()
+                            .productId(p.getProductId())
+                            .name(productService.getProduct(p.getProductId())
+                                    .map(prod -> prod.getName())
+                                    .orElse(p.getProductId()))
+                            .quantity(p.getQuantity())
+                            .price(p.getPrice())
+                            .build())
+                    .toList();
+
+            double totalRefund = items.stream().mapToDouble(CartAction.CartProduct::getPrice).sum();
+
+            mailService.sendRefundNotificationEmail(user.getEmail(), user.getName(), items, totalRefund);
+        }
+        catch (Exception ignored) {}
+
+        return saved;
     }
 
     public List<Returns> getReturns(User user)
