@@ -49,10 +49,10 @@ public class OrderController
     @GetMapping("/orders")
     public TeknocsResponse<List<GetOrders.OrderData>> getOrders(
             @CookieValue(name = "_TCS_AUTH", defaultValue = "NOT_AUTH") String token,
-            @RequestParam(defaultValue = "0") Date start,
-            @RequestParam(defaultValue = "0") Date end)
+            @RequestParam(defaultValue = "0") Long start,
+            @RequestParam(defaultValue = "0") Long end)
     {
-        List<GetOrders.OrderData> orders = (start.getTime() == 0 || end.getTime() == 0 ? orderService.getOrdersOfUser(userService.getUserByToken(token)) : orderService.getOrdersOfUserInDateRange(userService.getUserByToken(token), start, end))
+        List<GetOrders.OrderData> orders = (start == 0 || end == 0 ? orderService.getOrdersOfUser(userService.getUserByToken(token)) : orderService.getOrdersOfUserInDateRange(userService.getUserByToken(token), new Date(start), new Date(end)))
                 .stream().map(order -> GetOrders.OrderData.builder()
                         .id(order.getId())
                         .userId(order.getUserId())
