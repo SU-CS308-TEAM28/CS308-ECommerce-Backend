@@ -63,6 +63,20 @@ public class ProductController
         }
     }
 
+    @DeleteMapping("/{id}")
+    public TeknocsResponse<?> deleteProduct(@PathVariable String id)
+    {
+        try
+        {
+            productService.removeProduct(id);
+            return new TeknocsResponse<>(HttpStatus.OK, "Product removed successfully.", null);
+        }
+        catch (Exception e)
+        {
+            return new TeknocsResponse<>(HttpStatus.BAD_REQUEST, e.getMessage(), null);
+        }
+    }
+
     @GetMapping("/{id}")
     public TeknocsResponse<Product> getProduct(@PathVariable String id)
     {

@@ -140,6 +140,14 @@ public class ProductService
         return productRepository.save(existing);
     }
 
+    public void removeProduct(String id) throws Exception
+    {
+        Product existing = productRepository.findById(id)
+                .orElseThrow(() -> new Exception("Product with id '" + id + "' not found."));
+
+        productRepository.delete(existing);
+    }
+
     public List<Product> bulkDiscount(List<String> productIds, double discount)
     {
         List<Product> products = productRepository.findAllById(productIds);
