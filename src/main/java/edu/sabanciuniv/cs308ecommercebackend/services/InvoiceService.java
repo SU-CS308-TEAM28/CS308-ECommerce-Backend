@@ -49,7 +49,7 @@ public class InvoiceService
         addHeader(document, order);
         addThankYou(document);
         addOrderMeta(document, order, user);
-        addProductsTable(document, products);
+        addProductsTable(document, order, products);
         addTotal(document, order.getTotalPrice());
         addFooter(document);
 
@@ -137,7 +137,7 @@ public class InvoiceService
         document.add(t);
     }
 
-    private void addProductsTable(Document document, List<CartAction.CartProduct> products)
+    private void addProductsTable(Document document, Order order, List<CartAction.CartProduct> products)
             throws DocumentException
     {
         PdfPTable t = new PdfPTable(new float[]{4f, 1f, 1.5f, 1.5f});
@@ -155,7 +155,7 @@ public class InvoiceService
 
         for (CartAction.CartProduct p : products)
         {
-            double unitPrice = p.getPrice() * (1.0 - p.getActiveDiscount() / 100.0);
+            double unitPrice = order.getProducts().stream().filter(el -> el.getProductId().equals(p.getProductId())).findFirst().orElseThrow().getPrice();
             double subtotal  = unitPrice * p.getQuantity();
 
             t.addCell(bodyCell(p.getName(),                            rowFont, Element.ALIGN_LEFT));
