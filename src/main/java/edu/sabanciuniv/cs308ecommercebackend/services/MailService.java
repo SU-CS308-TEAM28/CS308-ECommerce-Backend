@@ -65,8 +65,8 @@ public class MailService
             double newPrice = p.getPrice() * (1 - discount / 100);
             rows.append("<tr>")
                 .append("<td style=\"").append(tdStyle).append("\">").append(p.getName()).append("</td>")
-                .append("<td style=\"").append(tdStyle).append("color: #6b7280; text-decoration: line-through;\">$").append(String.format("%.2f", p.getPrice())).append("</td>")
-                .append("<td style=\"").append(tdStyle).append("color: #16a34a; font-weight: 600;\">$").append(String.format("%.2f", newPrice)).append("</td>")
+                .append("<td style=\"").append(tdStyle).append("color: #6b7280; text-decoration: line-through;\">₺").append(String.format("%.2f", p.getPrice())).append("</td>")
+                .append("<td style=\"").append(tdStyle).append("color: #16a34a; font-weight: 600;\">₺").append(String.format("%.2f", newPrice)).append("</td>")
                 .append("</tr>");
         }
 
@@ -116,7 +116,7 @@ public class MailService
             rows.append("<tr>")
                 .append("<td style=\"").append(tdStyle).append("\">").append(item.getName()).append("</td>")
                 .append("<td style=\"").append(tdStyle).append("\">").append(item.getQuantity()).append("</td>")
-                .append("<td style=\"").append(tdStyle).append("color: #16a34a; font-weight: 600;\">$").append(String.format("%.2f", item.getPrice())).append("</td>")
+                .append("<td style=\"").append(tdStyle).append("color: #16a34a; font-weight: 600;\">₺").append(String.format("%.2f", item.getPrice())).append("</td>")
                 .append("</tr>");
 
         String name = recipientName != null ? recipientName : "there";
@@ -135,7 +135,7 @@ public class MailService
                 </thead>
                 <tbody>%s</tbody>
               </table>
-              <p style="margin: 0 0 24px 0; font-size: 15px; font-weight: 600;">Total refund: $%s</p>
+              <p style="margin: 0 0 24px 0; font-size: 15px; font-weight: 600;">Total refund: ₺%s</p>
               <p style="margin: 24px 0 0 0; color: #6b7280; font-size: 13px;">— The Teknocs team</p>
             </div>
             """.formatted(name, thStyle, thStyle, thStyle, rows, String.format("%.2f", totalRefund));
