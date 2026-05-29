@@ -7,11 +7,7 @@ import edu.sabanciuniv.cs308ecommercebackend.models.payloads.cart.CartAction;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.order.GetOrders;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.order.PlaceOrder;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.order.UpdateOrder;
-import edu.sabanciuniv.cs308ecommercebackend.services.CartService;
-import edu.sabanciuniv.cs308ecommercebackend.services.InvoiceService;
-import edu.sabanciuniv.cs308ecommercebackend.services.MailService;
-import edu.sabanciuniv.cs308ecommercebackend.services.OrderService;
-import edu.sabanciuniv.cs308ecommercebackend.services.UserService;
+import edu.sabanciuniv.cs308ecommercebackend.services.*;
 import jakarta.websocket.server.PathParam;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +32,9 @@ public class OrderController
 
     @Autowired
     private CartService cartService;
+
+    @Autowired
+    private ReturnService returnService;
 
     @Autowired
     private UserService userService;
@@ -63,6 +62,7 @@ public class OrderController
                         .deliveryAddress(order.getDeliveryAddress())
                         .isCompleted(order.isCompleted())
                         .isCancelled(order.isCancelled())
+                        .isReturnRequested(returnService.isReturnRequestedForOrder(order.getId()))
                         .build()
                 ).toList();
 
@@ -87,6 +87,7 @@ public class OrderController
                 .deliveryAddress(order.getDeliveryAddress())
                 .isCompleted(order.isCompleted())
                 .isCancelled(order.isCancelled())
+                .isReturnRequested(returnService.isReturnRequestedForOrder(order.getId()))
                 .build();
 
         return new TeknocsResponse<>(

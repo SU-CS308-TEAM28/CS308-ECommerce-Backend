@@ -5,9 +5,11 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ReturnRepository extends MongoRepository<Returns, String>
 {
     List<Returns> findAllByOrderIdIn(List<String> orderIds);
+    Optional<Returns> findByOrderId(String orderId);
 }

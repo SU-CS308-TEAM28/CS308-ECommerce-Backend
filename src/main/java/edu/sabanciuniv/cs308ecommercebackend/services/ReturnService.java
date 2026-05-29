@@ -120,4 +120,9 @@ public class ReturnService
         }
         return returnRepository.findAll();
     }
+
+    public boolean isReturnRequestedForOrder(String orderId)
+    {
+        return returnRepository.findByOrderId(orderId).isPresent();
+    }
 }

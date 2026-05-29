@@ -27,5 +27,6 @@ public class GetOrders
         String deliveryAddress;
         boolean isCompleted;
         boolean isCancelled;
+        boolean isReturnRequested;
     }
 }
