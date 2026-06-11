@@ -5,6 +5,7 @@ import edu.sabanciuniv.cs308ecommercebackend.components.JwtAuthFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -41,6 +42,29 @@ public class SecurityConfiguration
                             "/api/user/shopping-cart/**",
                             "/api/product/category/list"
                     ).permitAll()
+                    .requestMatchers(
+                            HttpMethod.POST,
+                            "/api/product/add"
+                    ).hasRole("PRODUCT_MANAGER")
+                    .requestMatchers(
+                            HttpMethod.PUT,
+                            "/api/product/{id}"
+                    ).hasAnyRole("PRODUCT_MANAGER", "SALES_MANAGER")
+                    .requestMatchers(
+                            HttpMethod.PUT,
+                            "/api/product/bulk-discount"
+                    ).hasRole("SALES_MANAGER")
+                    .requestMatchers(
+                            HttpMethod.PUT,
+                            "/api/product/{id}/comments/approve",
+                            "/api/product/{id}/comments/disapprove",
+                            "/api/return/approve",
+                            "/api/return/complete"
+                    ).hasRole("PRODUCT_MANAGER")
+                    .requestMatchers(
+                            HttpMethod.DELETE,
+                            "/api/product/{id}"
+                    ).hasRole("PRODUCT_MANAGER")
                     .anyRequest().authenticated()
             )
             .exceptionHandling(ex -> ex.authenticationEntryPoint(authEntryPoint))
