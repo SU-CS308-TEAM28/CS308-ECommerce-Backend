@@ -139,6 +139,16 @@ public class ProductService
         return productRepository.save(existing);
     }
 
+    public Product updateProductPrice(String id, double price) throws Exception
+    {
+        Product existing = productRepository.findById(id)
+                .orElseThrow(() -> new Exception("Product with id '" + id + "' not found."));
+
+        existing.setPrice(price);
+
+        return productRepository.save(existing);
+    }
+
     public void removeProduct(String id) throws Exception
     {
         Product existing = productRepository.findById(id)

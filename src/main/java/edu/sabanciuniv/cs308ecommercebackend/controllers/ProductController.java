@@ -51,8 +51,24 @@ public class ProductController
     }
 
     @PutMapping("/{id}")
-    public TeknocsResponse<Product> updateProduct(@PathVariable String id, @RequestBody ProductAction.Request request)
+    public TeknocsResponse<Product> updateProduct(
+            @PathVariable String id,
+            @RequestBody ProductAction.Request request,
+            @CookieValue(name = "_TCS_AUTH", defaultValue = "NOT_AUTH") String token
+    )
     {
+        if (userService.getUserByToken(token).getUserType().equals("sales_manager"))
+        {
+            try
+            {
+                return new TeknocsResponse<>(HttpStatus.OK, "Product price updated successfully.", productService.updateProductPrice(id, request.getPrice()));
+            }
+            catch (Exception e)
+            {
+                return new TeknocsResponse<>(HttpStatus.BAD_REQUEST, e.getMessage(), null);
+            }
+        }
+
         try
         {
             return new TeknocsResponse<>(HttpStatus.OK, "Product updated successfully.", productService.updateProduct(id, request));
