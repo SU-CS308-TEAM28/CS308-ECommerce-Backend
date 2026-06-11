@@ -1,21 +1,20 @@
 package edu.sabanciuniv.cs308ecommercebackend.services;
 
 import edu.sabanciuniv.cs308ecommercebackend.models.Order;
+import edu.sabanciuniv.cs308ecommercebackend.models.Product;
 import edu.sabanciuniv.cs308ecommercebackend.models.Returns;
 import edu.sabanciuniv.cs308ecommercebackend.models.User;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.cart.CartAction;
 import edu.sabanciuniv.cs308ecommercebackend.models.payloads.returns.ReturnRequest;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.OrderRepository;
+import edu.sabanciuniv.cs308ecommercebackend.repositories.ProductRepository;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.ReturnRepository;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class ReturnService
@@ -34,6 +33,9 @@ public class ReturnService
 
     @Autowired
     private MailService mailService;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     public Returns requestReturn(User user, String orderId, List<ReturnRequest.Request.ProductReturn> returningProducts, String reason) throws Exception
     {
@@ -94,12 +96,20 @@ public class ReturnService
                     .map(p -> CartAction.CartProduct.builder()
                             .productId(p.getProductId())
                             .name(productService.getProduct(p.getProductId())
-                                    .map(prod -> prod.getName())
+                                    .map(Product::getName)
                                     .orElse(p.getProductId()))
                             .quantity(p.getQuantity())
                             .price(p.getPrice())
                             .build())
                     .toList();
+
+            List<Product> dirtyProducts = new ArrayList<Product>();
+            items.forEach(prod -> {
+                Product productObj = productService.getProduct(prod.getProductId()).orElseThrow();
+                productObj.setStock(productObj.getStock() + prod.getQuantity());
+                dirtyProducts.add(productObj);
+            });
+            productRepository.saveAll(dirtyProducts);
 
             double totalRefund = items.stream().mapToDouble(CartAction.CartProduct::getPrice).sum();
 
