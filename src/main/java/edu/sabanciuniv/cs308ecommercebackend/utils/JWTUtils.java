@@ -51,6 +51,12 @@ public class JWTUtils
         return createToken(claims, username);
     }
 
+    public String generateToken(String username, String userType)
+    {
+        Map<String, Object> claims = Map.of("role", userType);
+        return createToken(claims, username);
+    }
+
     private String createToken(Map<String, Object> claims, String subject)
     {
         return Jwts.builder()

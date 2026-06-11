@@ -68,7 +68,8 @@ public class AuthController
         }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(request.getEmail());
-        String token = jwtUtil.generateToken(userDetails.getUsername());
+        User user = userService.getUserByEmail(userDetails.getUsername());
+        String token = jwtUtil.generateToken(userDetails.getUsername(), user.getUserType());
 
         ResponseCookie cookie = ResponseCookie.from("_TCS_AUTH", token)
                 .httpOnly(true)
@@ -86,7 +87,7 @@ public class AuthController
                 AuthLogin.Response
                         .builder()
                         .token(token)
-                        .user(userService.getUserByEmail(userDetails.getUsername()))
+                        .user(user)
                         .build()
         );
     }
