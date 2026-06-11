@@ -11,5 +11,5 @@ import java.util.Optional;
 public interface ReturnRepository extends MongoRepository<Returns, String>
 {
     List<Returns> findAllByOrderIdIn(List<String> orderIds);
-    Optional<Returns> findByOrderId(String orderId);
+    List<Returns> findByOrderId(String orderId);
 }

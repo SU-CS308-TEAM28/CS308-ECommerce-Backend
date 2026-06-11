@@ -81,7 +81,9 @@ public class OrderController
                 .id(order.getId())
                 .userId(order.getUserId())
                 .orderDate(order.getOrderDate())
-                .products(cartService.getCartProductsFromCartMeta(order.getProducts()))
+                .products(cartService.getCartProductsFromCartMeta(order.getProducts()).stream().peek(prod -> prod.setPrice(
+                        order.getProducts().stream().filter(p -> p.getProductId().equals(prod.getProductId())).findFirst().orElseThrow().getPrice()
+                )).toList())
                 .status(order.getStatus())
                 .totalPrice(order.getTotalPrice())
                 .deliveryAddress(order.getDeliveryAddress())

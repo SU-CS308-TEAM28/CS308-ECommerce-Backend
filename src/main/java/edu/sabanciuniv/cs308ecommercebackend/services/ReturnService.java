@@ -123,6 +123,6 @@ public class ReturnService
 
     public boolean isReturnRequestedForOrder(String orderId)
     {
-        return returnRepository.findByOrderId(orderId).isPresent();
+        return !returnRepository.findByOrderId(orderId).isEmpty();
     }
 }
