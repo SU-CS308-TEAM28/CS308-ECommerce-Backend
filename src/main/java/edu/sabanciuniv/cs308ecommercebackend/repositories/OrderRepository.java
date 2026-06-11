@@ -11,10 +11,11 @@ import java.util.List;
 public interface OrderRepository extends MongoRepository<Order, String>
 {
     List<Order> findAllByUserId(String userId);
-    List<Order> findAllByIsCompletedFalse();
+    List<Order> findAllByIsCompletedFalseAndIsCancelledFalse();
     List<Order> findAllByUserIdAndOrderDateBetween(String userId, Date start, Date end);
-    List<Order> findAllByIsCompletedFalseAndOrderDateBetween(Date start, Date end);
-    List<Order> findAllByOrderDateBetween(Date start, Date end);
+    List<Order> findAllByIsCompletedFalseAndIsCancelledFalseAndOrderDateBetween(Date start, Date end);
+    List<Order> findAllByIsCancelledFalseAndOrderDateBetween(Date start, Date end);
+    List<Order> findAllByIsCancelledFalse();
     Order findByIdAndUserId(String id, String userId);
     Order findByProductsProductIdAndUserId(String productId, String userId);
 }

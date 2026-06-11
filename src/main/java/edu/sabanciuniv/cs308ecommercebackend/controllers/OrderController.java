@@ -105,24 +105,17 @@ public class OrderController
             @PathVariable String id,
             @RequestParam(defaultValue = "false") boolean download)
     {
-        try
-        {
-            User user = userService.getUserByToken(token);
-            Order order = orderService.getOrderOfUser(user, id);
-            List<CartAction.CartProduct> products = cartService.getCartProductsFromCartMeta(order.getProducts());
-            byte[] pdf = invoiceService.generateInvoicePdf(order, user, products);
+        User user = userService.getUserByToken(token);
+        Order order = orderService.getOrder(id);
+        List<CartAction.CartProduct> products = cartService.getCartProductsFromCartMeta(order.getProducts());
+        byte[] pdf = invoiceService.generateInvoicePdf(order, user, products);
 
-            String disposition = (download ? "attachment" : "inline") + "; filename=\"invoice-" + id + ".pdf\"";
+        String disposition = (download ? "attachment" : "inline") + "; filename=\"invoice-" + id + ".pdf\"";
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_TYPE, "application/pdf")
-                    .header(HttpHeaders.CONTENT_DISPOSITION, disposition)
-                    .body(pdf);
-        }
-        catch (Exception e)
-        {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/pdf")
+                .header(HttpHeaders.CONTENT_DISPOSITION, disposition)
+                .body(pdf);
     }
 
     @PutMapping("/{id}")

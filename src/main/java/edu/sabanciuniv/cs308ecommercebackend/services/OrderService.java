@@ -32,9 +32,9 @@ public class OrderService
         if (user.getUserType().equals("user"))
             return orderRepository.findAllByUserId(user.getId());
         else if (user.getUserType().equals("product_manager"))
-            return orderRepository.findAllByIsCompletedFalse();
+            return orderRepository.findAllByIsCompletedFalseAndIsCancelledFalse();
         else
-            return orderRepository.findAll();
+            return orderRepository.findAllByIsCancelledFalse();
     }
 
     public List<Order> getOrdersOfUserInDateRange(User user, Date start, Date end)
@@ -42,9 +42,14 @@ public class OrderService
         if (user.getUserType().equals("user"))
             return orderRepository.findAllByUserIdAndOrderDateBetween(user.getId(), start, end);
         else if (user.getUserType().equals("product_manager"))
-            return orderRepository.findAllByIsCompletedFalseAndOrderDateBetween(start, end);
+            return orderRepository.findAllByIsCompletedFalseAndIsCancelledFalseAndOrderDateBetween(start, end);
         else
-            return orderRepository.findAllByOrderDateBetween(start, end);
+            return orderRepository.findAllByIsCancelledFalseAndOrderDateBetween(start, end);
+    }
+
+    public Order getOrder(String orderId)
+    {
+        return orderRepository.findById(orderId).orElseThrow();
     }
 
     public Order getOrderOfUser(User user, String orderId)
