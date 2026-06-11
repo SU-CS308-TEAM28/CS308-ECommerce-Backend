@@ -14,6 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
@@ -44,6 +47,8 @@ public class ReturnService
             throw new Exception("Order not found.");
         if (!order.isCompleted())
             throw new Exception("Only completed orders can be returned.");
+        if (ChronoUnit.DAYS.between(LocalDate.from(order.getOrderDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate()), LocalDate.now()) > 30)
+            throw new Exception("Returns are only acceptable within 30 days of purchase.");
 
         Set<User.ShoppingCartData> returnSet = new HashSet<>();
         for (ReturnRequest.Request.ProductReturn item : returningProducts)

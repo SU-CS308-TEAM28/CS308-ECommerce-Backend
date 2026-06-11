@@ -59,7 +59,7 @@ public class OrderService
 
     public Order getOrderOfUser(String productId, User user)
     {
-        return orderRepository.findByProductsProductIdAndUserId(productId, user.getId());
+        return orderRepository.findAllByProductsProductIdAndUserId(productId, user.getId()).stream().findFirst().orElseThrow();
     }
 
     public Order updateOrder(String orderId, String newStatus) throws Exception

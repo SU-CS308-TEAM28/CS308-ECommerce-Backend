@@ -17,5 +17,5 @@ public interface OrderRepository extends MongoRepository<Order, String>
     List<Order> findAllByIsCancelledFalseAndOrderDateBetween(Date start, Date end);
     List<Order> findAllByIsCancelledFalse();
     Order findByIdAndUserId(String id, String userId);
-    Order findByProductsProductIdAndUserId(String productId, String userId);
+    List<Order> findAllByProductsProductIdAndUserId(String productId, String userId);
 }
