@@ -2,6 +2,7 @@ package edu.sabanciuniv.cs308ecommercebackend.services;
 
 import edu.sabanciuniv.cs308ecommercebackend.models.Category;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.CategoryRepository;
+import edu.sabanciuniv.cs308ecommercebackend.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,9 @@ public class CategoryService
 
     @Autowired
     private CategoryRepository categoryRepository;
+
+    @Autowired
+    private ProductRepository productRepository;
 
     public Category createNewCategory(Category category)
     {
@@ -30,7 +34,8 @@ public class CategoryService
     {
         Category toRemove = categoryRepository.findById(categoryId).orElseThrow();
 
-        // TODO Check if any product has the category.
+        if (!productRepository.findByCategory(toRemove.getAbbrv()).isEmpty())
+            throw new Exception("A category cannot be deleted if there are products depending on it.");
 
         if (toRemove.getIsPrimitive())
             throw new Exception("Primitive categories of the application cannot be removed.");

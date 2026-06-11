@@ -7,7 +7,6 @@ import edu.sabanciuniv.cs308ecommercebackend.models.payloads.product.ProductActi
 import edu.sabanciuniv.cs308ecommercebackend.repositories.PagedProductRepository;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.ProductRepository;
 import edu.sabanciuniv.cs308ecommercebackend.repositories.UserRepository;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
